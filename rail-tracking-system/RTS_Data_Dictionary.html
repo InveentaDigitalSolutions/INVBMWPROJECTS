@@ -1,0 +1,1773 @@
+<meta charset="utf-8">
+<title>RTS Data Dictionary &amp; Operating Manual — Rail Transport System</title>
+<style>
+  :root{
+    --bg:#eef1f5; --surface:#ffffff; --surface-2:#f4f6f9; --ink:#182231; --ink-2:#4a5769;
+    --muted:#6b7789; --line:#dbe0e8; --line-2:#e7ebf1;
+    --accent:#1f6099; --accent-ink:#134878; --accent-soft:#e6eff7;
+    --amber:#9a6a12; --amber-soft:#f6edda;
+    --good:#217a4b; --good-soft:#e2f0e7; --bad:#b03a4a; --bad-soft:#f7e4e7;
+    --code-bg:#eef1f6; --code-ink:#264;
+    --shadow:0 1px 2px rgba(20,30,50,.06),0 8px 24px rgba(20,30,50,.05);
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0e131a; --surface:#161d27; --surface-2:#1b232f; --ink:#e7edf5; --ink-2:#b3bECC;
+      --muted:#8794a6; --line:#28323f; --line-2:#222b37;
+      --accent:#5ba0da; --accent-ink:#8fc0ea; --accent-soft:#152735;
+      --amber:#d6ad5c; --amber-soft:#2a2312; --good:#5fb987; --good-soft:#132a1e;
+      --bad:#e08595; --bad-soft:#2c1519; --code-bg:#1e2733; --code-ink:#9fd3c0;
+      --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"]{
+    --bg:#eef1f5; --surface:#ffffff; --surface-2:#f4f6f9; --ink:#182231; --ink-2:#4a5769;
+    --muted:#6b7789; --line:#dbe0e8; --line-2:#e7ebf1; --accent:#1f6099; --accent-ink:#134878;
+    --accent-soft:#e6eff7; --amber:#9a6a12; --amber-soft:#f6edda; --good:#217a4b; --good-soft:#e2f0e7;
+    --bad:#b03a4a; --bad-soft:#f7e4e7; --code-bg:#eef1f6; --code-ink:#264;
+    --shadow:0 1px 2px rgba(20,30,50,.06),0 8px 24px rgba(20,30,50,.05);
+  }
+  :root[data-theme="dark"]{
+    --bg:#0e131a; --surface:#161d27; --surface-2:#1b232f; --ink:#e7edf5; --ink-2:#b3becc;
+    --muted:#8794a6; --line:#28323f; --line-2:#222b37; --accent:#5ba0da; --accent-ink:#8fc0ea;
+    --accent-soft:#152735; --amber:#d6ad5c; --amber-soft:#2a2312; --good:#5fb987; --good-soft:#132a1e;
+    --bad:#e08595; --bad-soft:#2c1519; --code-bg:#1e2733; --code-ink:#9fd3c0;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+    line-height:1.5;font-size:15px;-webkit-font-smoothing:antialiased}
+  code{font-family:var(--mono);font-size:.86em;background:var(--code-bg);color:var(--code-ink);
+    padding:.08em .38em;border-radius:4px;white-space:nowrap}
+  h1,h2{text-wrap:balance;margin:0;font-weight:650;letter-spacing:-.01em}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  /* masthead */
+  .top{background:linear-gradient(180deg,var(--surface),var(--surface-2));border-bottom:1px solid var(--line);
+    padding:34px clamp(18px,4vw,54px) 30px}
+  .top .eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-ink);font-weight:650}
+  .top h1{font-size:clamp(26px,3.6vw,40px);margin:.28em 0 .18em}
+  .top p{margin:0;max-width:70ch;color:var(--ink-2)}
+  .facts{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  .facts span{font-size:12.5px;background:var(--accent-soft);color:var(--accent-ink);border:1px solid var(--line);
+    padding:5px 11px;border-radius:999px;font-variant-numeric:tabular-nums}
+
+  /* layout */
+  .wrap{display:grid;grid-template-columns:246px minmax(0,1fr);gap:0;align-items:start;
+    max-width:1400px;margin:0 auto}
+  nav{position:sticky;top:0;align-self:start;max-height:100vh;overflow:auto;padding:26px 8px 40px 18px;
+    border-right:1px solid var(--line)}
+  nav .nl{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);
+    font-weight:650;padding:0 10px;margin:18px 0 7px}
+  nav a{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:6px 10px;border-radius:7px;
+    color:var(--ink-2);font-size:13.5px}
+  nav a:hover{background:var(--surface-2);text-decoration:none;color:var(--ink)}
+  nav a span{font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--surface-2);
+    padding:1px 6px;border-radius:5px}
+  main{padding:26px clamp(16px,3vw,40px) 80px;min-width:0}
+
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);
+    padding:22px clamp(16px,2.4vw,28px);margin-bottom:22px}
+  .card h2{font-size:19px}
+  .lead{color:var(--ink-2);max-width:74ch}
+  .lead b{color:var(--ink);font-weight:620}
+
+  /* how-to grid */
+  .legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:12px;margin-top:6px}
+  .legend div{background:var(--surface-2);border:1px solid var(--line-2);border-radius:10px;padding:12px 14px}
+  .legend h4{margin:0 0 3px;font-size:13px}
+  .legend p{margin:0;font-size:12.7px;color:var(--muted)}
+
+  /* status spine */
+  .spine{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px}
+  .step{display:flex;flex-direction:column;gap:1px;min-width:112px;flex:1 1 112px;
+    background:var(--surface-2);border:1px solid var(--line-2);border-left:3px solid var(--amber);
+    border-radius:8px;padding:8px 11px}
+  .step .code{font-family:var(--mono);font-weight:700;font-size:14px;color:var(--amber)}
+  .step .val{font-family:var(--mono);font-size:11px;color:var(--muted)}
+  .step .nm{font-size:12px;color:var(--ink-2);line-height:1.25}
+
+  table{border-collapse:collapse;width:100%;font-size:13.5px}
+  .reltab td,.reltab th{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line-2);vertical-align:top}
+  .reltab th{font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:640}
+  .reltab tr:last-child td{border-bottom:none}
+
+  /* table sections */
+  .tbl{scroll-margin-top:12px}
+  .thead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+  .kind{font-size:11px;font-weight:640;letter-spacing:.06em;text-transform:uppercase;color:var(--accent-ink);
+    background:var(--accent-soft);border:1px solid var(--line);padding:3px 9px;border-radius:999px;vertical-align:middle}
+  .meta{margin-top:7px;color:var(--muted);font-size:12.5px}
+  .meta code{background:transparent;padding:0;color:var(--ink-2)}
+  .purpose{color:var(--ink-2);max-width:82ch;margin:12px 0 16px}
+  .scroll{overflow-x:auto;border:1px solid var(--line-2);border-radius:10px}
+  table.cols{font-size:13.4px}
+  table.cols thead th{position:sticky;top:0;background:var(--surface-2);text-align:left;
+    font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:640;
+    padding:9px 13px;border-bottom:1px solid var(--line);z-index:1}
+  table.cols td{padding:10px 13px;border-bottom:1px solid var(--line-2);vertical-align:top}
+  table.cols tbody tr:hover{background:var(--surface-2)}
+  td.dn{min-width:190px;font-weight:560}
+  td.dn span{margin-right:6px}
+  td.ln{white-space:nowrap}
+  td.tp{color:var(--ink-2);white-space:nowrap;min-width:96px;font-size:12.7px}
+  td.us{min-width:340px;color:var(--ink-2)}
+  tr.measure td.dn{box-shadow:inset 3px 0 0 var(--good)}
+  tr.grp td{background:var(--surface-2);color:var(--ink);font-weight:640;font-size:12.5px;
+    letter-spacing:.02em;border-left:4px solid var(--gc,var(--accent));border-bottom:1px solid var(--line)}
+
+  .b{display:inline-block;font-size:10px;font-weight:650;letter-spacing:.03em;text-transform:uppercase;
+    padding:1px 6px;border-radius:5px;vertical-align:middle;margin-right:3px;border:1px solid transparent}
+  .b-m{background:var(--good-soft);color:var(--good)}
+  .b-k{background:var(--accent-soft);color:var(--accent-ink)}
+  .b-c{background:var(--amber-soft);color:var(--amber)}
+  .b-d{background:var(--surface-2);color:var(--muted);border-color:var(--line)}
+  .b-r{background:var(--bad-soft);color:var(--bad)}
+
+  .opts{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+  .opt{font-size:11.5px;background:var(--surface-2);border:1px solid var(--line-2);border-radius:6px;
+    padding:2px 7px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+  .opt b{font-family:var(--mono);font-size:10.5px;color:var(--accent-ink);margin-right:5px;font-weight:700}
+  .opts-lg .opt{background:var(--amber-soft)}
+  .opts-lg .opt b{color:var(--amber)}
+
+  /* setup & operations */
+  .card h2.sub{font-size:16px;margin-top:28px;padding-top:20px;border-top:1px solid var(--line-2)}
+  .phase{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:14px}
+  .phase div{background:var(--surface-2);border:1px solid var(--line-2);border-left:3px solid var(--accent);
+    border-radius:10px;padding:12px 14px}
+  .phase h4{margin:0 0 4px;font-size:13px}
+  .phase p{margin:0;font-size:12.7px;color:var(--muted)}
+
+  ol.steps{counter-reset:step;list-style:none;margin:16px 0 0;padding:0;display:grid;gap:9px}
+  ol.steps>li{counter-increment:step;position:relative;background:var(--surface-2);border:1px solid var(--line-2);
+    border-radius:10px;padding:12px 16px 12px 52px}
+  ol.steps>li::before{content:counter(step);position:absolute;left:14px;top:11px;width:24px;height:24px;
+    display:grid;place-items:center;border-radius:7px;background:var(--accent-soft);color:var(--accent-ink);
+    font-family:var(--mono);font-size:12px;font-weight:700;border:1px solid var(--line)}
+  ol.steps h4{margin:0 0 4px;font-size:13.5px;font-weight:640}
+  ol.steps h4 .kind{margin-left:6px}
+  ol.steps p{margin:0;font-size:12.9px;color:var(--ink-2)}
+  ol.steps p+p{margin-top:5px}
+  .must{color:var(--ink);font-weight:620}
+
+  .callout{background:var(--amber-soft);border:1px solid var(--line-2);border-left:3px solid var(--amber);
+    border-radius:9px;padding:11px 14px;margin-top:12px;font-size:12.9px;color:var(--ink-2)}
+  .callout b{color:var(--ink)}
+  .callout .ic{font-family:var(--mono);font-weight:700;color:var(--amber);margin-right:6px}
+  .callout.ok{background:var(--good-soft);border-left-color:var(--good)}
+  .callout.ok .ic{color:var(--good)}
+  .callout.bad{background:var(--bad-soft);border-left-color:var(--bad)}
+  .callout.bad .ic{color:var(--bad)}
+  .callout ul{margin:7px 0 0;padding-left:18px}
+  .callout li{margin-bottom:3px}
+
+  td.fl{min-width:200px;font-weight:560}
+  td.tg{white-space:nowrap;font-size:12.6px;color:var(--ink-2)}
+  td.st{font-family:var(--mono);font-size:12px;white-space:nowrap;font-weight:640;color:var(--amber)}
+  td.st.to{color:var(--good)}
+  tr.off td{opacity:.62}
+
+  .footer{color:var(--muted);font-size:12.5px;text-align:center;padding:10px 20px 40px;max-width:80ch;margin:0 auto}
+
+  @media (max-width:880px){
+    .wrap{grid-template-columns:1fr}
+    nav{position:static;max-height:none;border-right:none;border-bottom:1px solid var(--line);
+      display:flex;flex-wrap:wrap;gap:4px;padding:12px}
+    nav .nl{width:100%;margin:6px 0 2px}
+    nav a{flex:0 0 auto}
+  }
+
+  /* print / PDF — last in the cascade so it wins over the narrow-width rules above */
+  @page{margin:14mm 12mm}
+  @media print{
+    /* always print the light palette, whatever the screen theme is */
+    :root,:root[data-theme="dark"],:root[data-theme="light"]{
+      --bg:#ffffff; --surface:#ffffff; --surface-2:#f5f7fa; --ink:#151d2a; --ink-2:#3f4b5c;
+      --muted:#5f6b7c; --line:#c9d1dc; --line-2:#dfe4ec; --accent:#1a5487; --accent-ink:#123f68;
+      --accent-soft:#e9f0f7; --amber:#7f570d; --amber-soft:#f7efdd; --good:#1b6a41; --good-soft:#e4f1e9;
+      --bad:#98313f; --bad-soft:#f8e6e9; --code-bg:#eef1f6; --code-ink:#1f4d3f; --shadow:none;
+    }
+    body{font-size:9.4pt;background:#fff}
+    nav,.facts{display:none}
+    .wrap{display:block;max-width:none}
+    main{padding:0}
+    .top{padding:0 0 14px;border-bottom:2px solid var(--line);background:none}
+    .top h1{font-size:20pt}
+    .top p{max-width:none;font-size:9.4pt}
+    .card{border:none;border-radius:0;padding:0;margin:0 0 16px;box-shadow:none}
+    .card h2{font-size:14pt;margin-bottom:2px}
+    .card h2.sub{font-size:11pt}
+    .lead,.purpose{max-width:none}
+    /* wide tables must not be clipped by the scroll container */
+    .scroll{overflow:visible;border-radius:0}
+    table{font-size:8.4pt}
+    table.cols thead th,thead{position:static}
+    thead{display:table-header-group}
+    tr,.step,.callout,.legend div,.phase div,ol.steps>li{break-inside:avoid}
+    section.tbl,#setup,#masterdata,#operations,#handover{break-before:page}
+    td.us,td.dn,td.fl{min-width:0}
+    /* give the meaning column the space, not the logical name */
+    table.cols{table-layout:fixed}
+    table.cols th:nth-child(1){width:20%}
+    table.cols th:nth-child(2){width:21%}
+    table.cols th:nth-child(3){width:15%}
+    table.cols th:nth-child(4){width:44%}
+    table.cols td{word-break:break-word}
+    /* nowrap + fixed layout makes cells bleed into their neighbour */
+    td.tp,td.ln,td.tg,td.st,code{white-space:normal}
+    a{color:var(--ink);text-decoration:none}
+    .footer{padding:14px 0 0;text-align:left;max-width:none;border-top:1px solid var(--line)}
+  }
+</style>
+
+<header class="top">
+  <div class="eyebrow">Power BI Reference · Dataverse · Handover</div>
+  <h1>RTS Data Dictionary &amp; Operating Manual</h1>
+  <p>Every table and field in the Rail Transport System (RTS) solution — what it means and how it is used — so measures and relationships can be built with confidence. Generated from the live Dataverse metadata of solution <code>UC_otd_3104</code>. The <a href="#setup">Setup &amp; operations</a> chapter is the handover manual (<i>Bedienungsanleitung</i>): how to set the system up from empty, how it runs week to week, and what has to be maintained.</p>
+  <div class="facts">
+    <span>12 business tables</span><span>~290 documented columns</span>
+    <span>Fact: Weekly Plans</span><span>Date dim: Calendars</span><span>27 cloud flows</span><span>Choice values shown as stored (integer)</span>
+  </div>
+</header>
+
+<div class="wrap">
+<nav>
+  <div class="nl">Orientation</div>
+  <a href="#read">How to read this <span>·</span></a>
+  <a href="#model">Model &amp; relationships <span>·</span></a>
+  <a href="#status">Transport status <span>22</span></a>
+  <div class="nl">Setup &amp; operations</div>
+  <a href="#setup">Roles &amp; phases <span>4</span></a>
+  <a href="#masterdata">Master data setup <span>10</span></a>
+  <a href="#operations">Running the system <span>27</span></a>
+  <a href="#handover">Environment &amp; handover <span>·</span></a>
+  <div class="nl">Tables</div>
+  <a href='#weekly-plans'>Weekly Plans <span>106</span></a><a href='#routes'>Routes <span>17</span></a><a href='#destinations'>Destinations <span>20</span></a><a href='#quelles'>Quelles <span>18</span></a><a href='#suppliers'>Suppliers <span>12</span></a><a href='#shareholders'>Shareholders <span>17</span></a><a href='#reference-weeks'>Reference Weeks <span>13</span></a><a href='#deadlines'>Deadlines <span>25</span></a><a href='#calendars'>Calendars <span>25</span></a><a href='#dunning-notices'>Dunning Notices <span>18</span></a><a href='#reasons-for-dunning-notices'>Reasons for Dunning Notices <span>13</span></a><a href='#translations'>Translations <span>12</span></a>
+</nav>
+
+<main>
+  <section id="read" class="card">
+    <h2>How to read this dictionary</h2>
+    <p class="lead"><b>Weekly Plans is the fact table</b> — one row per planned rail transport. Everything else is a dimension or config table you relate to it. Each transport moves through a status lifecycle (00 → 42), and many columns come in stage families (<em>Required → Requested → Ordered → Confirmed → Delivered → Loaded → Delivered&nbsp;at&nbsp;destination</em>) — the Weekly Plans section is grouped that way.</p>
+    <div class="legend">
+      <div><h4><span class="b b-m">measure</span></h4><p>Numeric / currency column — a natural SUM/AVG target. Wagon counts and costs are additive.</p></div>
+      <div><h4><span class="b b-k">key</span></h4><p>Lookup (relationship). Model as a link to the named dimension; don't aggregate it.</p></div>
+      <div><h4><span class="b b-c">choice</span></h4><p>Option set / Yes-No. <b>Power BI reads the integer option value</b>, not the label — use the value map shown under the field.</p></div>
+      <div><h4><span class="b b-d">date</span></h4><p>Date column — relate to <b>Calendars</b> for a time axis. See the date-storage note below.</p></div>
+    </div>
+    <p class="lead" style="margin-top:16px"><b>Two gotchas for reporting:</b> &nbsp;①&nbsp;<b>State filter</b> — most tables have <code>statecode</code> (0&nbsp;=&nbsp;Aktiv, 1&nbsp;=&nbsp;Inaktiv). Filter to Aktiv for live figures. &nbsp;②&nbsp;<b>DateOnly storage</b> — date columns are stored in UTC; a date the app wrote as local midnight lands as <code>22:00Z</code> the day before. Read the date part directly (don't apply a timezone shift in the model) to avoid an off-by-one day.</p>
+  </section>
+
+  <section id="model" class="card">
+    <h2>Model &amp; key relationships</h2>
+    <p class="purpose">Suggested star schema: <b>Weekly Plans</b> (fact) in the centre, linked out to the dimensions below. <code>Calendars</code> is the date dimension — connect it to <code>Transport Date</code> (and optionally <code>Order Date</code>). The six <em>Responsible&nbsp;for&nbsp;…</em> lookups all point at <code>Shareholders</code>, so you'll need role-playing dimensions (duplicate/alias Shareholders per role) if you report on more than one at once.</p>
+    <div class="scroll">
+      <table class="reltab">
+        <thead><tr><th>From</th><th>Via field(s)</th><th>To</th><th>Cardinality &amp; meaning</th></tr></thead>
+        <tbody><tr><td><code>Weekly Plans</code></td><td>Route</td><td><code>Routes</code></td><td>N:1 — the transport&#x27;s route</td></tr><tr><td><code>Weekly Plans</code></td><td>Supplier</td><td><code>Suppliers</code></td><td>N:1 — service provider</td></tr><tr><td><code>Weekly Plans</code></td><td>Transport Date / Order Date</td><td><code>Calendars</code></td><td>N:1 — date dimension</td></tr><tr><td><code>Weekly Plans</code></td><td>6× &#x27;Responsible for …&#x27;</td><td><code>Shareholders</code></td><td>N:1 each — accountable person per stage</td></tr><tr><td><code>Weekly Plans</code></td><td>Reason / Delete Reason / Short-delivery reason</td><td><code>Reasons for Dunning Notices</code></td><td>N:1 — reason lookups</td></tr><tr><td><code>Routes</code></td><td>Factory Dispatch Point</td><td><code>Quelles</code></td><td>N:1 — origin</td></tr><tr><td><code>Routes</code></td><td>Destination</td><td><code>Destinations</code></td><td>N:1 — end point</td></tr><tr><td><code>Routes</code></td><td>Supplier</td><td><code>Suppliers</code></td><td>N:1</td></tr><tr><td><code>Reference Weeks</code></td><td>Route</td><td><code>Routes</code></td><td>N:1 — template baseline per route</td></tr><tr><td><code>Dunning Notices</code></td><td>Weekly Plan</td><td><code>Weekly Plans</code></td><td>N:1 — notice belongs to a transport</td></tr><tr><td><code>Dunning Notices</code></td><td>Notice for</td><td><code>Shareholders</code></td><td>N:1</td></tr><tr><td><code>Shareholders</code></td><td>Supplier / Destination / Factory Dispatch Point / User</td><td><code>(various)</code></td><td>N:1 — links a person to org objects</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="status" class="card">
+    <h2>Transport status lifecycle <span class="kind">rts_transportstatus</span></h2>
+    <p class="purpose">The backbone of the model. Shown in workflow order with the <b>stored integer value</b> your measures must filter on (e.g. <code>rts_transportstatus = 914890017</code> for "10 - Bestellung geprüft"). Codes 92 / 98 / 99 are the cancellation branch (train cancelled / cancellation requested / cancelled).</p>
+    <div class="spine"><div class=step><span class=code>00</span><span class=val>914890004</span><span class=nm>Offener Bedarf</span></div><div class=step><span class=code>01</span><span class=val>914890011</span><span class=nm>Bedarf in Prüfung</span></div><div class=step><span class=code>02</span><span class=val>914890018</span><span class=nm>Bedarf geprüft</span></div><div class=step><span class=code>03</span><span class=val>914890000</span><span class=nm>Bedarf versendet</span></div><div class=step><span class=code>10</span><span class=val>914890017</span><span class=nm>Bestellung geprüft</span></div><div class=step><span class=code>11</span><span class=val>914890001</span><span class=nm>Bestellung versendet</span></div><div class=step><span class=code>12</span><span class=val>914890002</span><span class=nm>Bestätigung erfolgt</span></div><div class=step><span class=code>12.1</span><span class=val>914890019</span><span class=nm>Bestätigung erfolgt durch keine Antwort</span></div><div class=step><span class=code>12.2</span><span class=val>914890020</span><span class=nm>Bestätigung editiert zurückgemeldet</span></div><div class=step><span class=code>13</span><span class=val>914890021</span><span class=nm>Bestätigung geprüft</span></div><div class=step><span class=code>14</span><span class=val>914890003</span><span class=nm>Bestellbestätigung versendet</span></div><div class=step><span class=code>21</span><span class=val>914890005</span><span class=nm>Lieferung erwartet</span></div><div class=step><span class=code>22</span><span class=val>914890006</span><span class=nm>Lieferung erfolgt</span></div><div class=step><span class=code>31</span><span class=val>914890007</span><span class=nm>Beladung erfolgt</span></div><div class=step><span class=code>32</span><span class=val>914890016</span><span class=nm>Beladung erfolgt &amp; kritische Menge unterschritten</span></div><div class=step><span class=code>41</span><span class=val>914890013</span><span class=nm>Lieferung (beladen) erwartet</span></div><div class=step><span class=code>42</span><span class=val>914890012</span><span class=nm>Lieferung (beladen) erfolgt</span></div><div class=step><span class=code>92</span><span class=val>914890015</span><span class=nm>Zug ausgefallen</span></div><div class=step><span class=code>98</span><span class=val>914890008</span><span class=nm> Storno angefordert</span></div><div class=step><span class=code>99</span><span class=val>914890009</span><span class=nm>Storniert</span></div><div class=step><span class=code>90</span><span class=val>914890010</span><span class=nm>90 - Mahnung in Prüfung</span></div><div class=step><span class=code>91</span><span class=val>914890014</span><span class=nm>91 - Mahnung versendet</span></div></div>
+  </section>
+
+  <section id="setup" class="card">
+    <h2>Setup &amp; operations <span class="kind">Bedienungsanleitung</span></h2>
+    <p class="lead">RTS is not a single app — it is a <b>canvas app for BMW staff</b>, a set of <b>27 cloud flows</b> that move transports along on a schedule and send the e-mails, and four <b>web forms (masks)</b> that external partners fill in without needing a licence. The three parts talk to each other through one Dataverse table, <code>Weekly Plans</code>, and through the <a href="#status">transport status</a>. Understand that and the rest follows.</p>
+
+    <div class="phase">
+      <div><h4>① Set up</h4><p>Fill the master data in dependency order (§ <a href="#masterdata">Master data setup</a>). Done once per plant / lane, then extended as the network grows.</p></div>
+      <div><h4>② Operate</h4><p>Per calendar week: generate the week from the <i>Musterwoche</i>, then let the status chain run. Staff only intervene where a decision is needed (§ <a href="#operations">Running the system</a>).</p></div>
+      <div><h4>③ Maintain</h4><p>Annual: extend <code>Calendars</code> and the holiday flags. Ongoing: people (<code>Shareholders</code>), lanes (<code>Routes</code>), deadlines, reasons.</p></div>
+      <div><h4>④ Own</h4><p>Environment variables, connection references and the externally-hosted masks all have to be transferred to customer accounts (§ <a href="#handover">Environment &amp; handover</a>).</p></div>
+    </div>
+
+    <h2 class="sub">Who does what</h2>
+    <p class="lead">Every person in the process is a row in <code>Shareholders</code>. The multi-select <code>rts_role</code> on that row decides both what they see in the app and which e-mails they receive — it is the single most important field for day-to-day operation.</p>
+    <div class="legend">
+      <div><h4>Center of Competence <code>593090003</code></h4><p>BMW process owner. Full app access: checks demands and orders, plans the week, runs dunning and cancellation. Owns the master data.</p></div>
+      <div><h4>Factory Dispatch Point <code>593090002</code></h4><p>The <i>Quelle</i>. Confirms empty-wagon arrival and loading — in the app, or by mask if the site has no RTS access.</p></div>
+      <div><h4>Supplier <code>593090001</code></h4><p>The rail service provider. <b>No app access</b> — confirms or edits orders only through the order-confirmation mask linked in the e-mail.</p></div>
+      <div><h4>Destination <code>593090000</code></h4><p>The <i>Senke</i> / receiving point. <b>No app access</b> — confirms arrival of the loaded transport through the <i>Empfangsort</i> mask.</p></div>
+    </div>
+    <div class="callout"><span class="ic">!</span><b>A person with no <code>rts_email</code>, or with <code>statecode = Inaktiv</code>, silently receives nothing.</b> This is by far the most common cause of "the notification never arrived" — the flows filter recipients on exactly those two fields.</div>
+  </section>
+
+  <section id="masterdata" class="card">
+    <h2>Master data setup — in this order</h2>
+    <p class="purpose">Each step depends on the ones above it, so work top to bottom. Fields marked <span class="must">must</span> are required for the system to function — not merely required by Dataverse. Everything here is maintained directly in Dataverse (Power Apps → Tables → Data), not in the canvas app.</p>
+
+    <ol class="steps">
+      <li>
+        <h4>Calendars <span class="kind">rts_calendar</span></h4>
+        <p>One row per calendar day — the backbone for every week and deadline calculation in the system. <span class="must">Must</span> contain a complete, gap-free set of rows for every year in use, each with <code>rts_date</code>, <code>rts_datetext</code> (<code>yyyyMMdd</code>), <code>rts_year</code>, <code>rts_weeknumber</code> and <code>rts_dayofweek</code>.</p>
+        <p>Set <code>rts_holdiday</code> + <code>rts_holidayname</code> for public holidays — deadlines falling on a holiday are shifted back to the previous working day.</p>
+      </li>
+      <li>
+        <h4>Suppliers <span class="kind">rts_supplier1</span></h4>
+        <p>The rail / logistics service providers. <span class="must">Must</span> have <code>rts_suppliername</code>, <code>rts_suppliernameshort</code> and <code>rts_contactemail</code>.</p>
+      </li>
+      <li>
+        <h4>Destinations <span class="kind">rts_destination</span></h4>
+        <p>Receiving points (plants, compounds). <span class="must">Must</span> have <code>rts_destinationname</code> and <code>rts_destinationnameshort</code>; add <code>rts_vdscode</code> and the address for the transport papers.</p>
+      </li>
+      <li>
+        <h4>Quelles / Factory Dispatch Points <span class="kind">rts_factorydispatchpoint</span></h4>
+        <p>The physical origin of a transport. <span class="must">Must</span> have <code>rts_dispatchpointname</code> and <code>rts_factorydipatchnameshort</code>. Set <code>rts_reloadingroute</code> = Yes for sites that hand over to a reloading point.</p>
+      </li>
+      <li>
+        <h4>Routes <span class="kind">rts_route</span></h4>
+        <p>A lane = Factory Dispatch Point → Destination for one Supplier. <span class="must">Must</span> have all three lookups plus <code>rts_wagons</code> (the standard quantity).</p>
+        <p><code>rts_relativecriticalwagonamount</code> is the <b>critical share in percent</b>. It decides, on loading confirmation, whether a transport ends at status <b>31</b> (loading complete) or <b>32</b> (critical quantity undershot, which opens dunning). Leave it empty and the split cannot be evaluated.</p>
+      </li>
+      <li>
+        <h4>Shareholders <span class="kind">rts_shareholder</span></h4>
+        <p>Every person in the process. <span class="must">Must</span> have <code>rts_fullname</code>, <code>rts_email</code> and at least one <code>rts_role</code>, plus the lookup that ties them to their organisation — <code>rts_supplier</code>, <code>rts_destination</code> or <code>rts_factorydispatchpoint</code>. BMW staff additionally get <code>rts_user</code> so the app can recognise them at sign-in.</p>
+      </li>
+      <li>
+        <h4>Deadlines <span class="kind">rts_deadlines</span></h4>
+        <p>One row per transport status: for each weekday of the transport, which weekday the deadline falls on (<code>rts_deadlinedaymonday</code> … <code>rts_deadlinedaysunday</code>, with <code>rts_deadlinedaydefault</code> as fallback). Deadlines are computed in the week <i>before</i> the transport week.</p>
+        <p>The matching <code>rts_deadlinetime…</code> fields are stored but <b>not currently applied</b> — the system works to deadline <i>dates</i>, not times.</p>
+      </li>
+      <li>
+        <h4>Reference Weeks <span class="kind">rts_referenceweek</span> <span class="kind">Musterwoche</span></h4>
+        <p>The standing template: per <code>rts_route</code> and <code>rts_weekday</code>, how many wagons of which <code>rts_wagonprofil</code> (G1 / G2) and <code>rts_wagontype</code> (offen / geschlossen). This is what the week generator reads — a route with no reference-week row will not appear when a week is created.</p>
+        <p>Where one destination is served by several suppliers, add <b>one reference-week row per route</b>.</p>
+      </li>
+      <li>
+        <h4>Reasons for Dunning Notices <span class="kind">rts_reasonfordunningnotice</span></h4>
+        <p>The catalogue of short-delivery / non-performance reasons, grouped by <code>rts_kategorie</code> (BMW Intern, Dienstleister, Hafen/Compound, Witterung/Höhere Gewalt, Sonstiges/Unklar, Kein Grund angegeben). <span class="must">Must</span> keep the leading numeric code in <code>rts_dropdown</code> (e.g. <code>07 Ausrangierung …</code>) — the masks submit that code and the write-back flows resolve the reason record from it.</p>
+      </li>
+      <li>
+        <h4>Translations <span class="kind">rts_translation</span></h4>
+        <p>All UI strings of the canvas app: <code>rts_textid</code> + <code>rts_abbreviation</code> (<code>de</code> / <code>en</code>) → <code>rts_text</code>. To change wording or add a language, add rows here — no app change is needed. A missing row shows as a blank label.</p>
+      </li>
+    </ol>
+
+    <div class="callout bad"><span class="ic">✕</span><b>Never delete master data — deactivate it.</b> Every table carries <code>statecode</code> (0 = Aktiv, 1 = Inaktiv). Historical transports keep pointing at the row; deleting it breaks those records and every report built on them. Set the row to <i>Inaktiv</i> and it disappears from the app's pick lists while history stays intact.</div>
+
+    <div class="callout"><span class="ic">!</span><b>Names are join keys.</b> The notification flows do not follow the Factory Dispatch Point lookup — a transport carries the departure point as <i>text</i> (<code>rts_calculateddeparturename</code>), and the flows look the site up by <code>rts_dispatchpointname</code> <i>or</i> <code>rts_factorydipatchnameshort</code>. Rename a dispatch point in one place only and its notifications stop being delivered, with no error anywhere.</div>
+  </section>
+
+  <section id="operations" class="card">
+    <h2>Running the system</h2>
+    <p class="purpose">Weekly rhythm: the Center of Competence generates the coming weeks from the <i>Musterwoche</i>, and from then on the flows move each transport along its status chain on a fixed schedule. Staff act only where a decision is required — checking a demand, checking an order, deciding on dunning or cancellation.</p>
+
+    <h2 class="sub">The canvas app</h2>
+    <div class="scroll">
+      <table class="reltab">
+        <thead><tr><th>Screen</th><th>Used by</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td class="fl">01 Start</td><td class="tg">All</td><td>Landing page with four tiles, DE/EN switch and role-gated menu.</td></tr>
+          <tr><td class="fl">07 Decision</td><td class="tg">CoE</td><td>Pick plant, year and calendar week — then either open a single transport or build a whole week from the Musterwoche.</td></tr>
+          <tr><td class="fl">06 Week Transport</td><td class="tg">CoE</td><td>The week grid: wagons per route and weekday, prefilled from the reference week. <i>Übermitteln</i> creates the <code>Weekly Plans</code> rows and stamps each one's deadline.</td></tr>
+          <tr><td class="fl">03 Single Transport</td><td class="tg">CoE, Factory Dispatch Point</td><td>The core screen. Drives one transport through the whole chain — demand, order, confirmation, delivery, loading — with the editable fields gated by role and current status.</td></tr>
+          <tr><td class="fl">02 Overview</td><td class="tg">CoE</td><td>All transports with filters (plant, destination, supplier, status, week, creator) and the tabs <i>Alle / Storno / Mahnung</i>. Bulk status change and bulk cancellation live here.</td></tr>
+          <tr><td class="fl">05 Planning</td><td class="tg">CoE</td><td>Read-only three-week overview per plant — previous, current and next week side by side.</td></tr>
+          <tr><td class="fl">04 Management</td><td class="tg">CoE</td><td>KPI / rating dashboard. <b>Not yet connected to data</b> — the charts are placeholders (see open items).</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="sub">Automation map — which flow fires when</h2>
+    <p class="purpose">All flows live in solution <code>UC_otd_3104</code> (Power Apps → Solutions → Cloud flows). <b>Picks up</b> is the status a flow selects on; <b>Sets</b> is the status it writes. Times are W. Europe Standard Time. Flows named <code>F&lt;NN&gt;.R</code> are <i>response</i> flows — they are called by a mask when an external partner submits the form.</p>
+    <div class="scroll">
+      <table class="reltab">
+        <thead><tr><th>Flow</th><th>Fires</th><th>Picks up</th><th>Sets</th><th>Effect</th></tr></thead>
+        <tbody>
+          <tr><td class="fl">F01 Neue Bedarfe in Prüfung</td><td class="tg">From the app</td><td class="st">—</td><td class="st">—</td><td>Notifies the CoE that new demands are waiting to be checked.</td></tr>
+          <tr><td class="fl">F02 Vorläufige Bedarfsversendung</td><td class="tg">Weekly · Wed 15:00</td><td class="st">02</td><td class="st to">03</td><td>Sends the checked demand to the supplier.</td></tr>
+          <tr><td class="fl">F03 Neue Bestellungen in Prüfung</td><td class="tg">From the app</td><td class="st">—</td><td class="st">—</td><td>Notifies the CoE that new orders need checking.</td></tr>
+          <tr><td class="fl">F10 Bestellung geprüft</td><td class="tg">Daily · 13:00</td><td class="st">10</td><td class="st to">11</td><td>Sends the order to the supplier with a link to the order-confirmation mask.</td></tr>
+          <tr><td class="fl">F10.R Aufträge bestätigen &amp; an Logistik senden</td><td class="tg">Supplier submits the mask</td><td class="st">12</td><td class="st to">13 / 12.2</td><td>Writes the confirmed quantities back and calculates the confirmed deadline (Thursday of the preceding week). Edited confirmations land on 12.2.</td></tr>
+          <tr><td class="fl">Update Status 12 (Polling)</td><td class="tg">Every 5 min</td><td class="st">11</td><td class="st to">13 / 12.2</td><td>Picks up confirmations that arrived outside the mask.</td></tr>
+          <tr><td class="fl">F12.1 Keine Rückmeldung</td><td class="tg">Daily · 12:30</td><td class="st">10</td><td class="st to">12.1</td><td>Treats an unanswered order as confirmed as ordered.</td></tr>
+          <tr><td class="fl">12.2 Decline Mail</td><td class="tg">From the app</td><td class="st">—</td><td class="st">—</td><td>Informs the rail service provider and the demand planner that an edited confirmation was declined.</td></tr>
+          <tr><td class="fl">F14 Versendung Bestellbestätigung</td><td class="tg">Daily · 11:00</td><td class="st">13</td><td class="st to">14</td><td>Sends the final order confirmation, grouped per dispatch point.</td></tr>
+          <tr><td class="fl">F21 Neue Lieferungen (leer) erwartet</td><td class="tg">Daily</td><td class="st">14</td><td class="st to">21</td><td>Announces the expected empty-wagon arrival to each dispatch point. Transports on a reloading route additionally get the <i>Wiederbeladung</i> mask.</td></tr>
+          <tr><td class="fl">F21.R Lieferung (leer) bestätigen</td><td class="tg">Dispatch point submits the mask</td><td class="st">21</td><td class="st to">22</td><td>Writes arrival date/times, delivered and defective wagons, reason and responsible person back to the transport.</td></tr>
+          <tr><td class="fl">Erinnerung Wagonbeladung</td><td class="tg">Daily · 07:00</td><td class="st">22 / 23</td><td class="st">—</td><td>Reminds the dispatch point to report the loading, one working day after the confirmed transport date.</td></tr>
+          <tr><td class="fl">F22 Beladung für Wiederbeladung erwartet</td><td class="tg">Every 5 min</td><td class="st">22</td><td class="st to">23</td><td>Sends the <i>Beladung</i> mask to the reloading point and parks the transport at 23 so it is not mailed twice.</td></tr>
+          <tr><td class="fl">F22.R Beladung bestätigen</td><td class="tg">Reloading point submits the mask</td><td class="st">23</td><td class="st to">31 / 32 / 92</td><td>Compares loaded wagons against the route's critical share: full → 31, below critical → 32, nothing loaded → 92. For 32 and 92 it also opens dunning and calls F90.</td></tr>
+          <tr><td class="fl">F41 Lieferung Senke</td><td class="tg">Every 5 min</td><td class="st">31 / 32</td><td class="st to">41</td><td>Announces the loaded transport to the receiving point with a link to the <i>Empfangsort</i> mask.</td></tr>
+          <tr><td class="fl">F41.R Aufträge bestätigen — Senke</td><td class="tg">Destination submits the mask</td><td class="st">41</td><td class="st to">42</td><td>Records arrival at the destination — the end of the chain.</td></tr>
+          <tr><td class="fl">F90 Neue Aufträge in Mahnungsprüfung</td><td class="tg">From the app / from F22.R</td><td class="st">90</td><td class="st">—</td><td>Notifies the CoE that transports are waiting in dunning review.</td></tr>
+          <tr><td class="fl">F91 Mahnung Zugausfall</td><td class="tg">From the app</td><td class="st">—</td><td class="st to">91</td><td>Sends the dunning notice to the supplier, grouped per supplier, with the CoC in copy.</td></tr>
+          <tr><td class="fl">F92 / F98 / F99</td><td class="tg">From the app</td><td class="st">—</td><td class="st">—</td><td>Notifications for train cancelled (92), cancellation requested (98) and cancelled (99).</td></tr>
+          <tr><td class="fl">Neue Lieferung (leer) Notification</td><td class="tg">From the app</td><td class="st">—</td><td class="st">—</td><td>Ad-hoc announcement of an empty delivery.</td></tr>
+          <tr><td class="fl">Get Reasons · GetDunningReasons</td><td class="tg">Called by the masks</td><td class="st">—</td><td class="st">—</td><td>Serve the live reason catalogue so the masks always show the current list without being redeployed.</td></tr>
+          <tr><td class="fl">SecurityRoleAssignment</td><td class="tg">Team member added</td><td class="st">—</td><td class="st">—</td><td>Sends the approval mail for granting access when someone joins the RTS team.</td></tr>
+          <tr class="off"><td class="fl">Link Open Flow · Authentification</td><td class="tg">Off</td><td class="st">—</td><td class="st">—</td><td>Currently deactivated. Not part of the running process.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="sub">The four partner masks</h2>
+    <p class="purpose">External partners have no Power Apps licence. Each of them works through a web form that is opened from the notification e-mail; the transport data travels in the link, and submitting calls the matching <code>.R</code> flow. Nothing is stored in the form itself.</p>
+    <div class="scroll">
+      <table class="reltab">
+        <thead><tr><th>Mask</th><th>Opened by</th><th>Filled in by</th><th>Writes back via</th></tr></thead>
+        <tbody>
+          <tr><td class="fl">Wagon Transport Order Confirmation</td><td class="tg">F10</td><td class="tg">Supplier</td><td><code>F10.R</code> — confirmed wagons, dates, edits</td></tr>
+          <tr><td class="fl">Wiederbeladung — Ankunft am Übergabepunkt</td><td class="tg">F21</td><td class="tg">Reloading point</td><td><code>F21.R</code> — arrival, delivered / defective wagons</td></tr>
+          <tr><td class="fl">Beladung — Wiederbeladung am Übergabepunkt</td><td class="tg">F22</td><td class="tg">Reloading point</td><td><code>F22.R</code> — loaded wagons, problems, comments</td></tr>
+          <tr><td class="fl">Empfangsort — Transportbestätigung</td><td class="tg">F41</td><td class="tg">Destination</td><td><code>F41.R</code> — arrival at the receiving point</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout"><span class="ic">?</span><b>When an expected e-mail does not arrive</b>, check in this order:
+      <ul>
+        <li>Is the flow <b>On</b>? Solutions → <code>UC_otd_3104</code> → Cloud flows.</li>
+        <li>Does the transport really match the filter — right status <i>and</i> right date? A transport already moved on by an earlier run is no longer picked up.</li>
+        <li>Is there a <code>Shareholders</code> row for that supplier / dispatch point / destination, <b>Aktiv</b> and with <code>rts_email</code> filled?</li>
+        <li>Does the departure name on the transport still match the dispatch point's name or short name exactly?</li>
+        <li>Open the flow's <b>run history</b> — a failed run names the action and the reason.</li>
+        <li>Still nothing: the connection behind <code>3104_con_Mail</code> may have expired (owner left, password changed) and needs to be re-authorised.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="handover" class="card">
+    <h2>Environment &amp; handover</h2>
+    <p class="purpose">What exists, where it lives, and what has to change hands. Note that the app and the data sit in <b>two different environments</b> — the canvas app and all flows run in the app environment and reach into the Dataverse environment as an external data source.</p>
+
+    <div class="scroll">
+      <table class="reltab">
+        <thead><tr><th>Component</th><th>Where</th><th>Note</th></tr></thead>
+        <tbody>
+          <tr><td class="fl">Solution</td><td><code>UC_otd_3104</code></td><td>Unmanaged. Holds the canvas app, all 27 flows, the environment variables and the connection references.</td></tr>
+          <tr><td class="fl">App environment</td><td><code>c06da98d-80be-eed0-b9df-c8dfbc600157</code></td><td>Canvas app and cloud flows run here.</td></tr>
+          <tr><td class="fl">Dataverse environment</td><td><code>https://orgf7d737ab.crm4.dynamics.com/</code></td><td>All <code>rts_</code> tables. Referenced from the app environment — a separate environment, with its own security roles.</td></tr>
+          <tr><td class="fl">Canvas app</td><td><code>d5c280e7-95da-4ade-8732-f5d177d85538</code></td><td>The RTS app itself, bilingual DE / EN.</td></tr>
+          <tr><td class="fl">Partner masks</td><td>GitHub Pages, <b>third-party account</b></td><td><code>rtsapp</code> (order confirmation) and <code>rtsapp2</code> (Empfangsort, Wiederbeladung, Beladung). See the open item below.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="sub">Environment variables</h2>
+    <p class="purpose">Set once per environment (Solutions → <code>UC_otd_3104</code> → Environment variables). The flows read them instead of hard-coded values, so a move to another environment is a change of these seven values — not a change of 27 flows.</p>
+    <div class="scroll">
+      <table class="reltab">
+        <thead><tr><th>Variable</th><th>Current value</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td class="fl"><code>3104_env_DataverseEnvironment</code></td><td class="tg"><code>https://orgf7d737ab.crm4.dynamics.com/</code></td><td>The Dataverse environment every flow reads and writes. Used by 24 of the 27 flows.</td></tr>
+          <tr><td class="fl"><code>3104_env_AppUrl</code></td><td class="tg"><code>https://make.powerapps.com/</code></td><td>The link behind the <i>RTS öffnen</i> button in the notification e-mails. <b>Still a placeholder</b> — see open items.</td></tr>
+          <tr><td class="fl"><code>3104_env_DTWeeklyPlan</code></td><td class="tg"><code>rts_weeklyplans</code></td><td>Table name of the fact table.</td></tr>
+          <tr><td class="fl"><code>3104_env_DTShareholder</code></td><td class="tg"><code>rts_shareholders</code></td><td>Table name used for recipient lookup.</td></tr>
+          <tr><td class="fl"><code>3104_env_TURLOpenTimestamp</code></td><td class="tg"><code>rts_urlopentimestamps</code></td><td>Table name for logging when a mask link was opened.</td></tr>
+          <tr><td class="fl"><code>3104_env_DTUsers</code></td><td class="tg"><code>systemusers</code></td><td>Table name for the Dataverse user lookup.</td></tr>
+          <tr><td class="fl"><code>3104_env_DTSecurityRole</code></td><td class="tg">—</td><td>Defined but not referenced by any flow in the current version.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="sub">Connections</h2>
+    <p class="purpose">The flows run under connection references, not under the person who happens to open them: <code>3104_con_Microsoft Dataverse</code>, <code>3104_con_Mail</code> (all outgoing notifications), plus Office 365 Outlook and Microsoft Teams. At handover each of these must be re-pointed at an account the customer controls — ideally a service account, so a leaver does not stop the process.</p>
+    <div class="callout"><span class="ic">!</span><b>One technical rule to keep in mind:</b> a flow that is called by another flow (today: F90, called by F22.R) must have <b>all</b> its connections set to <i>embedded</i>, not <i>invoker</i>. Switching one back to invoker breaks the call at runtime with a misleading error.</div>
+
+    <h2 class="sub">Open items at handover</h2>
+    <div class="callout"><span class="ic">!</span><b>Points the customer should decide on or close.</b>
+      <ul>
+        <li><b>App link in e-mails</b> — <code>3104_env_AppUrl</code> still points at the maker portal, so the <i>RTS öffnen</i> button does not open the app. Setting it to the app's player URL fixes every notification at once.</li>
+        <li><b>Mask hosting</b> — the four partner masks are served from GitHub Pages under a private third-party account. They should be moved to customer-owned hosting before that account becomes unavailable.</li>
+        <li><b>Flow ownership</b> — the flows created most recently are not yet shared with the RTS maker group; without that, only their creator can edit them.</li>
+        <li><b>Management screen</b> — the KPI dashboard (screen 04) is laid out but not connected to data. It is the natural next development step.</li>
+        <li><b>Deadline times</b> — <code>rts_deadlinetime…</code> is maintained but not evaluated; the process currently works to deadline dates only.</li>
+        <li><b>Transports on public holidays</b> — these are still created, only the deadline is shifted. If they should be skipped or moved instead, that is a rule change to agree on.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id='weekly-plans' class=tbl>
+<div class=thead>
+  <div><h2>Weekly Plans <span class=kind>Fact table</span></h2>
+  <div class=meta><code>rts_weeklyplan</code> · set <code>rts_weeklyplans</code> · PK <code>rts_weeklyplanid</code> · name <code>cr983_id</code> · 106 columns</div></div>
+</div>
+<p class=purpose>The central transactional table — one row per planned rail transport for a route on a given day. Every row walks through the transport-status lifecycle (00 → 42), and the wagon-count / cost columns are captured stage by stage. This is the fact table of the model; almost every measure is built here and sliced by the dimensions below.</p>
+<div class=scroll><table class=cols><thead><tr><th>Field</th><th>Logical name</th><th>Type</th><th>Meaning &amp; how it's used</th></tr></thead><tbody><tr class=grp style='--gc:#1f6099'><td colspan=4>Identity &amp; classification</td></tr><tr class=''>
+<td class=dn><span>ID</span><span class='b b-r'>required</span></td>
+<td class=ln><code>cr983_id</code></td>
+<td class=tp>Text</td>
+<td class=us>Human-readable transport ID (the primary name column). Unique per row — safe to use as the fact grain key in Power BI.</td></tr><tr class=''>
+<td class=dn><span>Backuptransport</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_backuptransport</code></td>
+<td class=tp>Yes/No</td>
+<td class=us>Yes/No — this row is a backup (reserve) transport.<div class='opts'><span class=opt><b>true</b>Yes</span><span class=opt><b>false</b>No</span></div></td></tr><tr class=' measure'>
+<td class=dn><span>CalculatedCW</span><span class='b b-m'>measure</span></td>
+<td class=ln><code>rts_calculatedcw</code></td>
+<td class=tp>Decimal</td>
+<td class=us>Calculated calendar week (ISO CW) of the transport — numeric.</td></tr><tr class=''>
+<td class=dn><span>CalculatedDay</span></td>
+<td class=ln><code>rts_calculatedday</code></td>
+<td class=tp>Text</td>
+<td class=us>Calculated weekday name (text).</td></tr><tr class=''>
+<td class=dn><span>CalculatedDepartureName</span></td>
+<td class=ln><code>rts_calculateddeparturename</code></td>
+<td class=tp>Text</td>
+<td class=us>Denormalised source/dispatch-point name — for display without joining Quelles.</td></tr><tr class=''>
+<td class=dn><span>CalculatedDestinationName</span></td>
+<td class=ln><code>rts_calculateddestinationname</code></td>
+<td class=tp>Text</td>
+<td class=us>Denormalised destination name — for display without joining Destinations.</td></tr><tr class=''>
+<td class=dn><span>CalculatedSupplierName</span></td>
+<td class=ln><code>rts_calculatedsuppliername</code></td>
+<td class=tp>Text</td>
+<td class=us>Denormalised supplier name — for display without joining Suppliers.</td></tr><tr class=''>
+<td class=dn><span>CalculatedTransportDate</span><span class='b b-d'>date</span></td>
+<td class=ln><code>rts_calculatedtransportdate</code></td>
+<td class=tp>Date</td>
+<td class=us>System-derived transport date (flat date). Convenient for a date axis without the Calendars lookup.</td></tr><tr class=''>
+<td class=dn><span>Created by Reference Week</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_createdbyreferenceweek</code></td>
+<td class=tp>Yes/No</td>
+<td class=us>Yes/No — the row was auto-generated from a Reference Week template (vs. created manually).<div class='opts'><span class=opt><b>true</b>Yes</span><span class=opt><b>false</b>No</span></div></td></tr><tr class=''>
+<td class=dn><span>Day</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_day</code></td>
+<td class=tp>Choice</td>
+<td class=us>Weekday classification of the transport (choice).<div class='opts opts-lg'><span class=opt><b>593090000</b>Monday</span><span class=opt><b>593090001</b>Tuesday</span><span class=opt><b>593090002</b>Wednesday</span><span class=opt><b>593090003</b>Thursday</span><span class=opt><b>593090004</b>Friday</span><span class=opt><b>593090005</b>Saturday</span><span class=opt><b>593090006</b>Sunday</span></div></td></tr><tr class=''>
+<td class=dn><span>Differ from Reference Week</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_differfromreferenceweek</code></td>
+<td class=tp>Yes/No</td>
+<td class=us>Yes/No — the row&#x27;s plan differs from its Reference-Week baseline (manually adjusted).<div class='opts'><span class=opt><b>true</b>Yes</span><span class=opt><b>false</b>No</span></div></td></tr><tr class=''>
+<td class=dn><span>Order Date</span><span class='b b-k'>key</span></td>
+<td class=ln><code>rts_orderdate</code></td>
+<td class=tp>Lookup → Calendars</td>
+<td class=us>Lookup into Calendars for the order&#x27;s calendar day.</td></tr><tr class=''>
+<td class=dn><span>Reloading</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_reloading</code></td>
+<td class=tp>Yes/No</td>
+<td class=us>Yes/No — Wiederbeladung (reloading) transport. Used to branch the F21 flow logic.<div class='opts'><span class=opt><b>true</b>Yes</span><span class=opt><b>false</b>No</span></div></td></tr><tr class=''>
+<td class=dn><span>Route</span><span class='b b-k'>key</span><span class='b b-r'>required</span></td>
+<td class=ln><code>rts_route</code></td>
+<td class=tp>Lookup → Routes</td>
+<td class=us>Route dimension key (Factory Dispatch Point → Destination for a Supplier). Primary slicer for almost every measure.</td></tr><tr class=''>
+<td class=dn><span>Supplier</span><span class='b b-k'>key</span></td>
+<td class=ln><code>rts_supplier</code></td>
+<td class=tp>Lookup → Suppliers</td>
+<td class=us>Supplier (Dienstleister) responsible for the transport. Denormalised here in addition to Route → Supplier.</td></tr><tr class=''>
+<td class=dn><span>Transport Date</span><span class='b b-k'>key</span></td>
+<td class=ln><code>rts_transportdate</code></td>
+<td class=tp>Lookup → Calendars</td>
+<td class=us>Lookup into Calendars for the transport&#x27;s planned calendar day. Use this to relate the fact to the date dimension.</td></tr><tr class=''>
+<td class=dn><span>Transport Status</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_transportstatus</code></td>
+<td class=tp>Choice</td>
+<td class=us>THE lifecycle status of the transport (00→42, plus 92/98/99 cancellation states). Power BI reads the integer option value — use the value→label map below. The backbone of all status/throughput measures.<div class='opts opts-lg'><span class=opt><b>914890004</b>00 - Offener Bedarf</span><span class=opt><b>914890011</b>01 - Bedarf in Prüfung</span><span class=opt><b>914890018</b>02 - Bedarf geprüft</span><span class=opt><b>914890000</b>03 - Bedarf versendet</span><span class=opt><b>914890017</b>10 - Bestellung geprüft</span><span class=opt><b>914890001</b>11 - Bestellung versendet</span><span class=opt><b>914890002</b>12 - Bestätigung erfolgt</span><span class=opt><b>914890019</b>12.1 - Bestätigung erfolgt durch keine Antwort</span><span class=opt><b>914890020</b>12.2 - Bestätigung editiert zurückgemeldet</span><span class=opt><b>914890021</b>13 - Bestätigung geprüft</span><span class=opt><b>914890003</b>14 - Bestellbestätigung versendet</span><span class=opt><b>914890005</b>21 - Lieferung erwartet</span><span class=opt><b>914890006</b>22 - Lieferung erfolgt</span><span class=opt><b>914890007</b>31 - Beladung erfolgt</span><span class=opt><b>914890016</b>32 - Beladung erfolgt &amp; kritische Menge unterschritten</span><span class=opt><b>914890013</b>41 - Lieferung (beladen) erwartet</span><span class=opt><b>914890012</b>42 - Lieferung (beladen) erfolgt</span><span class=opt><b>914890008</b>98 -  Storno angefordert</span><span class=opt><b>914890009</b>99 - Storniert</span><span class=opt><b>914890010</b>90 - Mahnung in Prüfung</span><span class=opt><b>914890014</b>91 - Mahnung versendet</span><span class=opt><b>914890015</b>92 - Zug ausgefallen</span></div></td></tr><tr class=grp style='--gc:#8a6d1f'><td colspan=4>① Requirement — Bedarf (status 00–01)</td></tr><tr class=''>
+<td class=dn><span>Demand Request Sent</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_demandrequestsent</code></td>
+<td class=tp>Yes/No</td>
+<td class=us>Yes/No — the demand request (Bedarfsanfrage) has been sent to the supplier.<div class='opts'><span class=opt><b>true</b>Yes</span><span class=opt><b>false</b>No</span></div></td></tr><tr class=''>
+<td class=dn><span>Required Comment</span></td>
+<td class=ln><code>rts_requiredcomment</code></td>
+<td class=tp>Multiline text</td>
+<td class=us>Free-text note captured at the requirement stage.</td></tr><tr class=''>
+<td class=dn><span>Required Deadline</span><span class='b b-d'>date</span></td>
+<td class=ln><code>rts_requireddeadline</code></td>
+<td class=tp>Date + time</td>
+<td class=us>Deadline for the requirement stage (date). Compare against actuals for on-time measures.</td></tr><tr class=''>
+<td class=dn><span>Required Reload Deadline</span><span class='b b-d'>date</span></td>
+<td class=ln><code>rts_requiredreloaddeadline</code></td>
+<td class=tp>Date</td>
+<td class=us>Deadline for the requirement stage (date). Compare against actuals for on-time measures.</td></tr><tr class=''>
+<td class=dn><span>Required Transport Date</span><span class='b b-d'>date</span></td>
+<td class=ln><code>rts_requiredtransportdate</code></td>
+<td class=tp>Date</td>
+<td class=us>Date captured at the requirement stage — relate to Calendars for a time axis.</td></tr><tr class=' measure'>
+<td class=dn><span>Required Wagons</span><span class='b b-m'>measure</span></td>
+<td class=ln><code>rts_requiredwagons</code></td>
+<td class=tp>Whole number</td>
+<td class=us>Wagon count recorded at the requirement stage — additive measure.</td></tr><tr class=''>
+<td class=dn><span>Responsible for Requirement</span><span class='b b-k'>key</span></td>
+<td class=ln><code>rts_responsibleforrequirement</code></td>
+<td class=tp>Lookup → Shareholders</td>
+<td class=us>Shareholder accountable for the requirement stage (people dimension).</td></tr><tr class=grp style='--gc:#8a6d1f'><td colspan=4>② Requested — Bedarf geprüft/versendet (02–03)</td></tr><tr class=''>
+<td class=dn><span>Requested Comment</span></td>
+<td class=ln><code>rts_requestedcomment</code></td>
+<td class=tp>Multiline text</td>
+<td class=us>Free-text note captured at the request stage.</td></tr><tr class=''>
+<td class=dn><span>Requested Transport Date</span><span class='b b-d'>date</span></td>
+<td class=ln><code>rts_requestedtransportdate</code></td>
+<td class=tp>Date</td>
+<td class=us>Date captured at the request stage — relate to Calendars for a time axis.</td></tr><tr class=' measure'>
+<td class=dn><span>Requested Wagons</span><span class='b b-m'>measure</span></td>
+<td class=ln><code>rts_requestedwagons</code></td>
+<td class=tp>Whole number</td>
+<td class=us>Wagon count recorded at the request stage — additive measure.</td></tr><tr class=''>
+<td class=dn><span>Responsible for Request</span><span class='b b-k'>key</span></td>
+<td class=ln><code>rts_responsibleforrequest</code></td>
+<td class=tp>Lookup → Shareholders</td>
+<td class=us>Shareholder accountable for the request stage (people dimension).</td></tr><tr class=grp style='--gc:#a35a1f'><td colspan=4>③ Ordered — Bestellung (10–11)</td></tr><tr class=''>
+<td class=dn><span>Ordered Comment</span></td>
+<td class=ln><code>rts_orderedcomment</code></td>
+<td class=tp>Text</td>
+<td class=us>Free-text note captured at the order stage.</td></tr><tr class=''>
+<td class=dn><span>Ordered DateTime</span><span class='b b-d'>date</span></td>
+<td class=ln><code>rts_ordereddatetime</code></td>
+<td class=tp>Date + time</td>
+<td class=us>Date captured at the order stage — relate to Calendars for a time axis.</td></tr><tr class=''>
+<td class=dn><span>Ordered Deadline</span><span class='b b-d'>date</span></td>
+<td class=ln><code>rts_ordereddeadline</code></td>
+<td class=tp>Date</td>
+<td class=us>Deadline for the order stage (date). Compare against actuals for on-time measures.</td></tr><tr class=''>
+<td class=dn><span>Ordered Transport Date</span><span class='b b-d'>date</span></td>
+<td class=ln><code>rts_orderedtransportdate</code></td>
+<td class=tp>Date</td>
+<td class=us>Date captured at the order stage — relate to Calendars for a time axis.</td></tr><tr class=' measure'>
+<td class=dn><span>Ordered Wagons</span><span class='b b-m'>measure</span></td>
+<td class=ln><code>rts_orderedwagons</code></td>
+<td class=tp>Whole number</td>
+<td class=us>Wagon count recorded at the order stage — additive measure.</td></tr><tr class=''>
+<td class=dn><span>Order Status</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_orderstatus</code></td>
+<td class=tp>Choice</td>
+<td class=us>Secondary order-status choice (distinct from the master Transport Status).</td></tr><tr class=''>
+<td class=dn><span>Responsible for Order</span><span class='b b-k'>key</span></td>
+<td class=ln><code>rts_responsiblefororder</code></td>
+<td class=tp>Lookup → Shareholders</td>
+<td class=us>Shareholder accountable for the order stage (people dimension).</td></tr><tr class=grp style='--gc:#7a3fa0'><td colspan=4>④ Confirmed — Bestätigung (12–14)</td></tr><tr class=''>
+<td class=dn><span>ConfirmationRecieved</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_confirmationrecieved</code></td>
+<td class=tp>Yes/No</td>
+<td class=us>Yes/No — supplier confirmation has been received.<div class='opts'><span class=opt><b>true</b>Yes</span><span class=opt><b>false</b>No</span></div></td></tr><tr class=''>
+<td class=dn><span>Confirmation Time</span></td>
+<td class=ln><code>rts_confirmationtime</code></td>
+<td class=tp>Text</td>
+<td class=us>Clock time (text, HH:MM) for the confirmation stage — operational scheduling detail, not a true datetime.</td></tr><tr class=''>
+<td class=dn><span>Confirmed Arrival Time</span><span class='b b-d'>date</span></td>
+<td class=ln><code>rts_confirmedarrivaltime</code></td>
+<td class=tp>Date + time</td>
+<td class=us>Clock time (text, HH:MM) for the confirmation stage — operational scheduling detail, not a true datetime.</td></tr><tr class=''>
+<td class=dn><span>Confirmed Comment</span></td>
+<td class=ln><code>rts_confirmedcomment</code></td>
+<td class=tp>Multiline text</td>
+<td class=us>Free-text note captured at the confirmation stage.</td></tr><tr class=''>
+<td class=dn><span>Confirmed Deadline</span><span class='b b-d'>date</span></td>
+<td class=ln><code>rts_confirmeddeadline</code></td>
+<td class=tp>Date</td>
+<td class=us>Deadline for the confirmation stage (date). Compare against actuals for on-time measures.</td></tr><tr class=''>
+<td class=dn><span>Confirmed Transport Date</span><span class='b b-d'>date</span></td>
+<td class=ln><code>rts_confirmedtransportdate</code></td>
+<td class=tp>Date</td>
+<td class=us>Date captured at the confirmation stage — relate to Calendars for a time axis.</td></tr><tr class=' measure'>
+<td class=dn><span>Confirmed Wagons</span><span class='b b-m'>measure</span></td>
+<td class=ln><code>rts_confirmedwagons</code></td>
+<td class=tp>Whole number</td>
+<td class=us>Wagon count recorded at the confirmation stage — additive measure.</td></tr><tr class=''>
+<td class=dn><span>Responsible for Confirmation</span><span class='b b-k'>key</span></td>
+<td class=ln><code>rts_responsibleforconfirmation</code></td>
+<td class=tp>Lookup → Shareholders</td>
+<td class=us>Shareholder accountable for the confirmation stage (people dimension).</td></tr><tr class=''>
+<td class=dn><span>Wagon Profile Confirmed</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_wagonprofileconfirmed</code></td>
+<td class=tp>Choice</td>
+<td class=us>Wagon profile (G1/G2) as recorded at the confirmation stage (choice).<div class='opts'><span class=opt><b>914890000</b>G1</span><span class=opt><b>914890001</b>G2</span></div></td></tr><tr class=''>
+<td class=dn><span>Wagon Type Confirmed</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_wagontypeconfirmed</code></td>
+<td class=tp>Choice</td>
+<td class=us>Wagon type (open/closed) as recorded at the confirmation stage (choice).<div class='opts'><span class=opt><b>914890000</b>Offen</span><span class=opt><b>914890001</b>Geschlossen</span><span class=opt><b>914890002</b>Offen + Geschlossen</span></div></td></tr><tr class=grp style='--gc:#2f7d4f'><td colspan=4>⑤ Delivery / departure (21–22)</td></tr><tr class=''>
+<td class=dn><span>Actual Arrival Date</span><span class='b b-d'>date</span></td>
+<td class=ln><code>rts_actualarrivaldate</code></td>
+<td class=tp>Date</td>
+<td class=us>Date captured at delivery / departure stage — relate to Calendars for a time axis.</td></tr><tr class=''>
+<td class=dn><span>Actual Arrival Time</span></td>
+<td class=ln><code>rts_actualarrivaltime</code></td>
+<td class=tp>Text</td>
+<td class=us>Clock time (text, HH:MM) for delivery / departure stage — operational scheduling detail, not a true datetime.</td></tr><tr class=''>
+<td class=dn><span>Actual Departure Time At Destination</span></td>
+<td class=ln><code>rts_actualdeparturetimeatdestination</code></td>
+<td class=tp>Text</td>
+<td class=us>Clock time (text, HH:MM) for delivery / departure stage — operational scheduling detail, not a true datetime.</td></tr><tr class=''>
+<td class=dn><span>Arrival Time Departure From</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_arrivaltimedeparturefrom</code></td>
+<td class=tp>Choice</td>
+<td class=us>Clock time (text, HH:MM) for delivery / departure stage — operational scheduling detail, not a true datetime.<div class='opts opts-lg'><span class=opt><b>914890000</b>00:00</span><span class=opt><b>914890001</b>00:30</span><span class=opt><b>914890002</b>01:00</span><span class=opt><b>914890003</b>01:30</span><span class=opt><b>914890004</b>02:00</span><span class=opt><b>914890005</b>02:30</span><span class=opt><b>914890006</b>03:00</span><span class=opt><b>914890007</b>03:30</span><span class=opt><b>914890008</b>04:00</span><span class=opt><b>914890009</b>04:30</span><span class=opt><b>914890010</b>05:00</span><span class=opt><b>914890011</b>05:30</span><span class=opt><b>914890012</b>06:00</span><span class=opt><b>914890013</b>06:30</span><span class=opt><b>914890014</b>07:00</span><span class=opt><b>914890015</b>07:30</span><span class=opt><b>914890016</b>08:00</span><span class=opt><b>914890017</b>08:30</span><span class=opt><b>914890018</b>09:00</span><span class=opt><b>914890019</b>09:30</span><span class=opt><b>914890020</b>10:00</span><span class=opt><b>914890021</b>10:30</span><span class=opt><b>914890022</b>11:00</span><span class=opt><b>914890023</b>11:30</span><span class=opt><b>914890024</b>12:00</span><span class=opt><b>914890025</b>12:30</span><span class=opt><b>914890026</b>13:00</span><span class=opt><b>914890027</b>13:30</span><span class=opt><b>914890028</b>14:00</span><span class=opt><b>914890029</b>14:30</span><span class=opt><b>914890030</b>15:00</span><span class=opt><b>914890031</b>15:30</span><span class=opt><b>914890032</b>16:00</span><span class=opt><b>914890033</b>16:30</span><span class=opt><b>914890034</b>17:00</span><span class=opt><b>914890035</b>17:30</span><span class=opt><b>914890036</b>18:00</span><span class=opt><b>914890037</b>18:30</span><span class=opt><b>914890038</b>19:00</span><span class=opt><b>914890039</b>19:30</span><span class=opt><b>914890040</b>20:00</span><span class=opt><b>914890041</b>20:30</span><span class=opt><b>914890042</b>21:00</span><span class=opt><b>914890043</b>21:30</span><span class=opt><b>914890044</b>22:00</span><span class=opt><b>914890045</b>22:30</span><span class=opt><b>914890046</b>23:00</span><span class=opt><b>914890047</b>23:30</span></div></td></tr><tr class=''>
+<td class=dn><span>Arrival Time Departure To</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_arrivaltimedepartureto</code></td>
+<td class=tp>Choice</td>
+<td class=us>Clock time (text, HH:MM) for delivery / departure stage — operational scheduling detail, not a true datetime.<div class='opts opts-lg'><span class=opt><b>914890000</b>00:00</span><span class=opt><b>914890001</b>00:30</span><span class=opt><b>914890002</b>01:00</span><span class=opt><b>914890003</b>01:30</span><span class=opt><b>914890004</b>02:00</span><span class=opt><b>914890005</b>02:30</span><span class=opt><b>914890006</b>03:00</span><span class=opt><b>914890007</b>03:30</span><span class=opt><b>914890008</b>04:00</span><span class=opt><b>914890009</b>04:30</span><span class=opt><b>914890010</b>05:00</span><span class=opt><b>914890011</b>05:30</span><span class=opt><b>914890012</b>06:00</span><span class=opt><b>914890013</b>06:30</span><span class=opt><b>914890014</b>07:00</span><span class=opt><b>914890015</b>07:30</span><span class=opt><b>914890016</b>08:00</span><span class=opt><b>914890017</b>08:30</span><span class=opt><b>914890018</b>09:00</span><span class=opt><b>914890019</b>09:30</span><span class=opt><b>914890020</b>10:00</span><span class=opt><b>914890021</b>10:30</span><span class=opt><b>914890022</b>11:00</span><span class=opt><b>914890023</b>11:30</span><span class=opt><b>914890024</b>12:00</span><span class=opt><b>914890025</b>12:30</span><span class=opt><b>914890026</b>13:00</span><span class=opt><b>914890027</b>13:30</span><span class=opt><b>914890028</b>14:00</span><span class=opt><b>914890029</b>14:30</span><span class=opt><b>914890030</b>15:00</span><span class=opt><b>914890031</b>15:30</span><span class=opt><b>914890032</b>16:00</span><span class=opt><b>914890033</b>16:30</span><span class=opt><b>914890034</b>17:00</span><span class=opt><b>914890035</b>17:30</span><span class=opt><b>914890036</b>18:00</span><span class=opt><b>914890037</b>18:30</span><span class=opt><b>914890038</b>19:00</span><span class=opt><b>914890039</b>19:30</span><span class=opt><b>914890040</b>20:00</span><span class=opt><b>914890041</b>20:30</span><span class=opt><b>914890042</b>21:00</span><span class=opt><b>914890043</b>21:30</span><span class=opt><b>914890044</b>22:00</span><span class=opt><b>914890045</b>22:30</span><span class=opt><b>914890046</b>23:00</span><span class=opt><b>914890047</b>23:30</span></div></td></tr><tr class=''>
+<td class=dn><span>Arrival Time Destination From</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_arrivaltimedestinationfrom</code></td>
+<td class=tp>Choice</td>
+<td class=us>Clock time (text, HH:MM) for delivery / departure stage — operational scheduling detail, not a true datetime.<div class='opts opts-lg'><span class=opt><b>914890000</b>00:00</span><span class=opt><b>914890001</b>00:30</span><span class=opt><b>914890002</b>01:00</span><span class=opt><b>914890003</b>01:30</span><span class=opt><b>914890004</b>02:00</span><span class=opt><b>914890005</b>02:30</span><span class=opt><b>914890006</b>03:00</span><span class=opt><b>914890007</b>03:30</span><span class=opt><b>914890008</b>04:00</span><span class=opt><b>914890009</b>04:30</span><span class=opt><b>914890010</b>05:00</span><span class=opt><b>914890011</b>05:30</span><span class=opt><b>914890012</b>06:00</span><span class=opt><b>914890013</b>06:30</span><span class=opt><b>914890014</b>07:00</span><span class=opt><b>914890015</b>07:30</span><span class=opt><b>914890016</b>08:00</span><span class=opt><b>914890017</b>08:30</span><span class=opt><b>914890018</b>09:00</span><span class=opt><b>914890019</b>09:30</span><span class=opt><b>914890020</b>10:00</span><span class=opt><b>914890021</b>10:30</span><span class=opt><b>914890022</b>11:00</span><span class=opt><b>914890023</b>11:30</span><span class=opt><b>914890024</b>12:00</span><span class=opt><b>914890025</b>12:30</span><span class=opt><b>914890026</b>13:00</span><span class=opt><b>914890027</b>13:30</span><span class=opt><b>914890028</b>14:00</span><span class=opt><b>914890029</b>14:30</span><span class=opt><b>914890030</b>15:00</span><span class=opt><b>914890031</b>15:30</span><span class=opt><b>914890032</b>16:00</span><span class=opt><b>914890033</b>16:30</span><span class=opt><b>914890034</b>17:00</span><span class=opt><b>914890035</b>17:30</span><span class=opt><b>914890036</b>18:00</span><span class=opt><b>914890037</b>18:30</span><span class=opt><b>914890038</b>19:00</span><span class=opt><b>914890039</b>19:30</span><span class=opt><b>914890040</b>20:00</span><span class=opt><b>914890041</b>20:30</span><span class=opt><b>914890042</b>21:00</span><span class=opt><b>914890043</b>21:30</span><span class=opt><b>914890044</b>22:00</span><span class=opt><b>914890045</b>22:30</span><span class=opt><b>914890046</b>23:00</span><span class=opt><b>914890047</b>23:30</span></div></td></tr><tr class=''>
+<td class=dn><span>Arrival Time Destination To</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_arrivaltimedestinationto</code></td>
+<td class=tp>Choice</td>
+<td class=us>Clock time (text, HH:MM) for delivery / departure stage — operational scheduling detail, not a true datetime.<div class='opts opts-lg'><span class=opt><b>914890000</b>00:00</span><span class=opt><b>914890001</b>00:30</span><span class=opt><b>914890002</b>01:00</span><span class=opt><b>914890003</b>01:30</span><span class=opt><b>914890004</b>02:00</span><span class=opt><b>914890005</b>02:30</span><span class=opt><b>914890006</b>03:00</span><span class=opt><b>914890007</b>03:30</span><span class=opt><b>914890008</b>04:00</span><span class=opt><b>914890009</b>04:30</span><span class=opt><b>914890010</b>05:00</span><span class=opt><b>914890011</b>05:30</span><span class=opt><b>914890012</b>06:00</span><span class=opt><b>914890013</b>06:30</span><span class=opt><b>914890014</b>07:00</span><span class=opt><b>914890015</b>07:30</span><span class=opt><b>914890016</b>08:00</span><span class=opt><b>914890017</b>08:30</span><span class=opt><b>914890018</b>09:00</span><span class=opt><b>914890019</b>09:30</span><span class=opt><b>914890020</b>10:00</span><span class=opt><b>914890021</b>10:30</span><span class=opt><b>914890022</b>11:00</span><span class=opt><b>914890023</b>11:30</span><span class=opt><b>914890024</b>12:00</span><span class=opt><b>914890025</b>12:30</span><span class=opt><b>914890026</b>13:00</span><span class=opt><b>914890027</b>13:30</span><span class=opt><b>914890028</b>14:00</span><span class=opt><b>914890029</b>14:30</span><span class=opt><b>914890030</b>15:00</span><span class=opt><b>914890031</b>15:30</span><span class=opt><b>914890032</b>16:00</span><span class=opt><b>914890033</b>16:30</span><span class=opt><b>914890034</b>17:00</span><span class=opt><b>914890035</b>17:30</span><span class=opt><b>914890036</b>18:00</span><span class=opt><b>914890037</b>18:30</span><span class=opt><b>914890038</b>19:00</span><span class=opt><b>914890039</b>19:30</span><span class=opt><b>914890040</b>20:00</span><span class=opt><b>914890041</b>20:30</span><span class=opt><b>914890042</b>21:00</span><span class=opt><b>914890043</b>21:30</span><span class=opt><b>914890044</b>22:00</span><span class=opt><b>914890045</b>22:30</span><span class=opt><b>914890046</b>23:00</span><span class=opt><b>914890047</b>23:30</span></div></td></tr><tr class=''>
+<td class=dn><span>Delivered Comment</span></td>
+<td class=ln><code>rts_deliveredcomment</code></td>
+<td class=tp>Multiline text</td>
+<td class=us>Free-text note captured at delivery / departure stage.</td></tr><tr class=''>
+<td class=dn><span>Delivered Transport Date</span><span class='b b-d'>date</span></td>
+<td class=ln><code>rts_deliveredtransportdate</code></td>
+<td class=tp>Date</td>
+<td class=us>Date captured at delivery / departure stage — relate to Calendars for a time axis.</td></tr><tr class=' measure'>
+<td class=dn><span>Delivered Wagons</span><span class='b b-m'>measure</span></td>
+<td class=ln><code>rts_deliveredwagons</code></td>
+<td class=tp>Whole number</td>
+<td class=us>Wagon count recorded at delivery / departure stage — additive measure.</td></tr><tr class=''>
+<td class=dn><span>Delivery Date</span><span class='b b-d'>date</span></td>
+<td class=ln><code>rts_deliverydate</code></td>
+<td class=tp>Date</td>
+<td class=us>Date captured at delivery / departure stage — relate to Calendars for a time axis.</td></tr><tr class=''>
+<td class=dn><span>Delivery Time From</span></td>
+<td class=ln><code>rts_deliverytimefrom</code></td>
+<td class=tp>Text</td>
+<td class=us>Clock time (text, HH:MM) for delivery / departure stage — operational scheduling detail, not a true datetime.</td></tr><tr class=''>
+<td class=dn><span>Delivery Time To</span></td>
+<td class=ln><code>rts_deliverytimeto</code></td>
+<td class=tp>Text</td>
+<td class=us>Clock time (text, HH:MM) for delivery / departure stage — operational scheduling detail, not a true datetime.</td></tr><tr class=''>
+<td class=dn><span>Departure Arrival Time From </span></td>
+<td class=ln><code>rts_departurearrivaltimefrom</code></td>
+<td class=tp>Text</td>
+<td class=us>Clock time (text, HH:MM) for delivery / departure stage — operational scheduling detail, not a true datetime.</td></tr><tr class=''>
+<td class=dn><span>Departure Arrival Time From At Destination</span></td>
+<td class=ln><code>rts_departurearrivaltimefromatdestination</code></td>
+<td class=tp>Text</td>
+<td class=us>Clock time (text, HH:MM) for delivery / departure stage — operational scheduling detail, not a true datetime.</td></tr><tr class=''>
+<td class=dn><span>Departure Arrival Time To At Destination</span></td>
+<td class=ln><code>rts_departurearrivaltimetoatdestination</code></td>
+<td class=tp>Text</td>
+<td class=us>Clock time (text, HH:MM) for delivery / departure stage — operational scheduling detail, not a true datetime.</td></tr><tr class=''>
+<td class=dn><span>Departure Arrival Time Until</span></td>
+<td class=ln><code>rts_departurearrivaltimeuntil</code></td>
+<td class=tp>Text</td>
+<td class=us>Clock time (text, HH:MM) for delivery / departure stage — operational scheduling detail, not a true datetime.</td></tr><tr class=''>
+<td class=dn><span>Departure Departure Date</span><span class='b b-d'>date</span></td>
+<td class=ln><code>rts_departuredeparturedate</code></td>
+<td class=tp>Date</td>
+<td class=us>Date captured at delivery / departure stage — relate to Calendars for a time axis.</td></tr><tr class=''>
+<td class=dn><span>Departure Departure Time</span></td>
+<td class=ln><code>rts_departuredeparturetime</code></td>
+<td class=tp>Text</td>
+<td class=us>Clock time (text, HH:MM) for delivery / departure stage — operational scheduling detail, not a true datetime.</td></tr><tr class=''>
+<td class=dn><span>Departure Time Departure</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_departuretimedeparture</code></td>
+<td class=tp>Choice</td>
+<td class=us>Clock time (text, HH:MM) for delivery / departure stage — operational scheduling detail, not a true datetime.<div class='opts opts-lg'><span class=opt><b>914890000</b>00:00</span><span class=opt><b>914890001</b>00:30</span><span class=opt><b>914890002</b>01:00</span><span class=opt><b>914890003</b>01:30</span><span class=opt><b>914890004</b>02:00</span><span class=opt><b>914890005</b>02:30</span><span class=opt><b>914890006</b>03:00</span><span class=opt><b>914890007</b>03:30</span><span class=opt><b>914890008</b>04:00</span><span class=opt><b>914890009</b>04:30</span><span class=opt><b>914890010</b>05:00</span><span class=opt><b>914890011</b>05:30</span><span class=opt><b>914890012</b>06:00</span><span class=opt><b>914890013</b>06:30</span><span class=opt><b>914890014</b>07:00</span><span class=opt><b>914890015</b>07:30</span><span class=opt><b>914890016</b>08:00</span><span class=opt><b>914890017</b>08:30</span><span class=opt><b>914890018</b>09:00</span><span class=opt><b>914890019</b>09:30</span><span class=opt><b>914890020</b>10:00</span><span class=opt><b>914890021</b>10:30</span><span class=opt><b>914890022</b>11:00</span><span class=opt><b>914890023</b>11:30</span><span class=opt><b>914890024</b>12:00</span><span class=opt><b>914890025</b>12:30</span><span class=opt><b>914890026</b>13:00</span><span class=opt><b>914890027</b>13:30</span><span class=opt><b>914890028</b>14:00</span><span class=opt><b>914890029</b>14:30</span><span class=opt><b>914890030</b>15:00</span><span class=opt><b>914890031</b>15:30</span><span class=opt><b>914890032</b>16:00</span><span class=opt><b>914890033</b>16:30</span><span class=opt><b>914890034</b>17:00</span><span class=opt><b>914890035</b>17:30</span><span class=opt><b>914890036</b>18:00</span><span class=opt><b>914890037</b>18:30</span><span class=opt><b>914890038</b>19:00</span><span class=opt><b>914890039</b>19:30</span><span class=opt><b>914890040</b>20:00</span><span class=opt><b>914890041</b>20:30</span><span class=opt><b>914890042</b>21:00</span><span class=opt><b>914890043</b>21:30</span><span class=opt><b>914890044</b>22:00</span><span class=opt><b>914890045</b>22:30</span><span class=opt><b>914890046</b>23:00</span><span class=opt><b>914890047</b>23:30</span></div></td></tr><tr class=''>
+<td class=dn><span>Departure Time Destination</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_departuretimedestination</code></td>
+<td class=tp>Choice</td>
+<td class=us>Clock time (text, HH:MM) for delivery / departure stage — operational scheduling detail, not a true datetime.<div class='opts opts-lg'><span class=opt><b>914890000</b>00:00</span><span class=opt><b>914890001</b>00:30</span><span class=opt><b>914890002</b>01:00</span><span class=opt><b>914890003</b>01:30</span><span class=opt><b>914890004</b>02:00</span><span class=opt><b>914890005</b>02:30</span><span class=opt><b>914890006</b>03:00</span><span class=opt><b>914890007</b>03:30</span><span class=opt><b>914890008</b>04:00</span><span class=opt><b>914890009</b>04:30</span><span class=opt><b>914890010</b>05:00</span><span class=opt><b>914890011</b>05:30</span><span class=opt><b>914890012</b>06:00</span><span class=opt><b>914890013</b>06:30</span><span class=opt><b>914890014</b>07:00</span><span class=opt><b>914890015</b>07:30</span><span class=opt><b>914890016</b>08:00</span><span class=opt><b>914890017</b>08:30</span><span class=opt><b>914890018</b>09:00</span><span class=opt><b>914890019</b>09:30</span><span class=opt><b>914890020</b>10:00</span><span class=opt><b>914890021</b>10:30</span><span class=opt><b>914890022</b>11:00</span><span class=opt><b>914890023</b>11:30</span><span class=opt><b>914890024</b>12:00</span><span class=opt><b>914890025</b>12:30</span><span class=opt><b>914890026</b>13:00</span><span class=opt><b>914890027</b>13:30</span><span class=opt><b>914890028</b>14:00</span><span class=opt><b>914890029</b>14:30</span><span class=opt><b>914890030</b>15:00</span><span class=opt><b>914890031</b>15:30</span><span class=opt><b>914890032</b>16:00</span><span class=opt><b>914890033</b>16:30</span><span class=opt><b>914890034</b>17:00</span><span class=opt><b>914890035</b>17:30</span><span class=opt><b>914890036</b>18:00</span><span class=opt><b>914890037</b>18:30</span><span class=opt><b>914890038</b>19:00</span><span class=opt><b>914890039</b>19:30</span><span class=opt><b>914890040</b>20:00</span><span class=opt><b>914890041</b>20:30</span><span class=opt><b>914890042</b>21:00</span><span class=opt><b>914890043</b>21:30</span><span class=opt><b>914890044</b>22:00</span><span class=opt><b>914890045</b>22:30</span><span class=opt><b>914890046</b>23:00</span><span class=opt><b>914890047</b>23:30</span></div></td></tr><tr class=''>
+<td class=dn><span>Destination Arrival Time From</span></td>
+<td class=ln><code>rts_destinationarrivaltimefrom</code></td>
+<td class=tp>Text</td>
+<td class=us>Clock time (text, HH:MM) for delivery / departure stage — operational scheduling detail, not a true datetime.</td></tr><tr class=''>
+<td class=dn><span>Destination Arrival Time Until</span></td>
+<td class=ln><code>rts_destinationarrivaltimeuntil</code></td>
+<td class=tp>Text</td>
+<td class=us>Clock time (text, HH:MM) for delivery / departure stage — operational scheduling detail, not a true datetime.</td></tr><tr class=''>
+<td class=dn><span>Destination Departure Time</span></td>
+<td class=ln><code>rts_destinationdeparturetime</code></td>
+<td class=tp>Text</td>
+<td class=us>Clock time (text, HH:MM) for delivery / departure stage — operational scheduling detail, not a true datetime.</td></tr><tr class=' measure'>
+<td class=dn><span>Estimated Wagons</span><span class='b b-m'>measure</span></td>
+<td class=ln><code>rts_estimatedwagons</code></td>
+<td class=tp>Whole number</td>
+<td class=us>Wagon count recorded at delivery / departure stage — additive measure.</td></tr><tr class=''>
+<td class=dn><span>Planned Arrival Time</span></td>
+<td class=ln><code>rts_plannedarrivaltime</code></td>
+<td class=tp>Text</td>
+<td class=us>Clock time (text, HH:MM) for delivery / departure stage — operational scheduling detail, not a true datetime.</td></tr><tr class=''>
+<td class=dn><span>Responsible for Delivery</span><span class='b b-k'>key</span></td>
+<td class=ln><code>rts_responsiblefordelivery</code></td>
+<td class=tp>Lookup → Shareholders</td>
+<td class=us>Shareholder accountable for delivery / departure stage (people dimension).</td></tr><tr class=''>
+<td class=dn><span>Wagon Profile Delivery</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_wagonprofiledelivery</code></td>
+<td class=tp>Choice</td>
+<td class=us>Wagon profile (G1/G2) as recorded at delivery / departure stage (choice).<div class='opts'><span class=opt><b>914890000</b>G1</span><span class=opt><b>914890001</b>G2</span></div></td></tr><tr class=''>
+<td class=dn><span>Wagon Type Delivery</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_wagontypedelivery</code></td>
+<td class=tp>Choice</td>
+<td class=us>Wagon type (open/closed) as recorded at delivery / departure stage (choice).<div class='opts'><span class=opt><b>914890000</b>Offen</span><span class=opt><b>914890001</b>Geschlossen</span><span class=opt><b>914890002</b>Offen + Geschlossen</span></div></td></tr><tr class=grp style='--gc:#2f7d4f'><td colspan=4>⑥ Loaded — Beladung (31–32)</td></tr><tr class=' measure'>
+<td class=dn><span>Defective Wagons</span><span class='b b-m'>measure</span></td>
+<td class=ln><code>rts_defectivewagons</code></td>
+<td class=tp>Whole number</td>
+<td class=us>Wagon count recorded at loading stage — additive measure.</td></tr><tr class=''>
+<td class=dn><span>Incomplete Loaded Wagons</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_incompleteloadedwagons</code></td>
+<td class=tp>Yes/No</td>
+<td class=us>Yes/No — Minderbeladung: fewer wagons were loaded than ordered.<div class='opts'><span class=opt><b>true</b>Yes</span><span class=opt><b>false</b>No</span></div></td></tr><tr class=''>
+<td class=dn><span>Loaded Comment</span></td>
+<td class=ln><code>rts_loadedcomment</code></td>
+<td class=tp>Multiline text</td>
+<td class=us>Free-text note captured at loading stage.</td></tr><tr class=''>
+<td class=dn><span>Loaded Transport Date</span><span class='b b-d'>date</span></td>
+<td class=ln><code>rts_loadedtransportdate</code></td>
+<td class=tp>Date</td>
+<td class=us>Date captured at loading stage — relate to Calendars for a time axis.</td></tr><tr class=' measure'>
+<td class=dn><span>Loaded Wagons</span><span class='b b-m'>measure</span></td>
+<td class=ln><code>rts_loadedwagons</code></td>
+<td class=tp>Whole number</td>
+<td class=us>Wagon count recorded at loading stage — additive measure.</td></tr><tr class=''>
+<td class=dn><span>Responsible for Loading</span><span class='b b-k'>key</span></td>
+<td class=ln><code>rts_responsibleforloading</code></td>
+<td class=tp>Lookup → Shareholders</td>
+<td class=us>Shareholder accountable for loading stage (people dimension).</td></tr><tr class=grp style='--gc:#2f7d4f'><td colspan=4>⑦ Delivered at destination (41–42)</td></tr><tr class=''>
+<td class=dn><span>Delivered Destination Comment</span></td>
+<td class=ln><code>rts_delivereddestinationcomment</code></td>
+<td class=tp>Multiline text</td>
+<td class=us>Free-text note captured at delivery at destination stage.</td></tr><tr class=''>
+<td class=dn><span>Delivered Destination No Show</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_delivereddestinationnoshow</code></td>
+<td class=tp>Yes/No</td>
+<td class=us>Yes/No — no-show at the destination.<div class='opts'><span class=opt><b>true</b>Yes</span><span class=opt><b>false</b>No</span></div></td></tr><tr class=''>
+<td class=dn><span>Delivered Destination Transport Date</span><span class='b b-d'>date</span></td>
+<td class=ln><code>rts_delivereddestinationtransportdate</code></td>
+<td class=tp>Date</td>
+<td class=us>Date captured at delivery at destination stage — relate to Calendars for a time axis.</td></tr><tr class=' measure'>
+<td class=dn><span>Delivered Destination Wagons</span><span class='b b-m'>measure</span></td>
+<td class=ln><code>rts_delivereddestinationwagons</code></td>
+<td class=tp>Whole number</td>
+<td class=us>Wagon count recorded at delivery at destination stage — additive measure.</td></tr><tr class=''>
+<td class=dn><span>Reason Short Delivery Destination</span><span class='b b-k'>key</span></td>
+<td class=ln><code>rts_reasonshortdeliverydestination</code></td>
+<td class=tp>Lookup → Reasons</td>
+<td class=us>Reason for a short delivery at the destination side.</td></tr><tr class=grp style='--gc:#4a5568'><td colspan=4>Wagon profile &amp; type</td></tr><tr class=''>
+<td class=dn><span>Wagonprofil</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_wagonprofil</code></td>
+<td class=tp>Choice</td>
+<td class=us>Choice — Power BI reads the integer value; see the value map.<div class='opts'><span class=opt><b>914890000</b>G1</span><span class=opt><b>914890001</b>G2</span></div></td></tr><tr class=''>
+<td class=dn><span>Wagon Type</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_wagontype</code></td>
+<td class=tp>Choice</td>
+<td class=us>Choice — Power BI reads the integer value; see the value map.<div class='opts'><span class=opt><b>914890000</b>Offen</span><span class=opt><b>914890001</b>Geschlossen</span><span class=opt><b>914890002</b>Offen + Geschlossen</span></div></td></tr><tr class=grp style='--gc:#b03a4a'><td colspan=4>Costs, dunning &amp; cancellation</td></tr><tr class=''>
+<td class=dn><span>Before Deleted Status</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_beforedeletedstatus</code></td>
+<td class=tp>Choice</td>
+<td class=us>The transport status the row held immediately before a cancellation was requested (choice) — lets a cancelled row be restored / analysed by its prior stage.<div class='opts opts-lg'><span class=opt><b>914890004</b>00 - Offener Bedarf</span><span class=opt><b>914890011</b>01 - Bedarf in Prüfung</span><span class=opt><b>914890018</b>02 - Bedarf geprüft</span><span class=opt><b>914890000</b>03 - Bedarf versendet</span><span class=opt><b>914890017</b>10 - Bestellung geprüft</span><span class=opt><b>914890001</b>11 - Bestellung versendet</span><span class=opt><b>914890002</b>12 - Bestätigung erfolgt</span><span class=opt><b>914890019</b>12.1 - Bestätigung erfolgt durch keine Antwort</span><span class=opt><b>914890020</b>12.2 - Bestätigung editiert zurückgemeldet</span><span class=opt><b>914890021</b>13 - Bestätigung geprüft</span><span class=opt><b>914890003</b>14 - Bestellbestätigung versendet</span><span class=opt><b>914890005</b>21 - Lieferung erwartet</span><span class=opt><b>914890006</b>22 - Lieferung erfolgt</span><span class=opt><b>914890007</b>31 - Beladung erfolgt</span><span class=opt><b>914890016</b>32 - Beladung erfolgt &amp; kritische Menge unterschritten</span><span class=opt><b>914890013</b>41 - Lieferung (beladen) erwartet</span><span class=opt><b>914890012</b>42 - Lieferung (beladen) erfolgt</span><span class=opt><b>914890008</b>98 -  Storno angefordert</span><span class=opt><b>914890009</b>99 - Storniert</span><span class=opt><b>914890010</b>90 - Mahnung in Prüfung</span><span class=opt><b>914890014</b>91 - Mahnung versendet</span><span class=opt><b>914890015</b>92 - Zug ausgefallen</span></div></td></tr><tr class=''>
+<td class=dn><span>Comment Supplier</span></td>
+<td class=ln><code>rts_commentsupplier</code></td>
+<td class=tp>Multiline text</td>
+<td class=us>Free-text comment from the supplier.</td></tr><tr class=''>
+<td class=dn><span>Delete Comment</span></td>
+<td class=ln><code>rts_deletecomment</code></td>
+<td class=tp>Multiline text</td>
+<td class=us>Free-text (multiline) note.</td></tr><tr class=''>
+<td class=dn><span>Delete Reason</span><span class='b b-k'>key</span></td>
+<td class=ln><code>rts_deletereason</code></td>
+<td class=tp>Lookup → Reasons</td>
+<td class=us>Reason chosen when a cancellation (Storno) is requested.</td></tr><tr class=''>
+<td class=dn><span>Delete Request by</span><span class='b b-k'>key</span></td>
+<td class=ln><code>rts_deleterequestby</code></td>
+<td class=tp>Lookup → Shareholders</td>
+<td class=us>Shareholder who requested the cancellation.</td></tr><tr class=''>
+<td class=dn><span>Dunning Notice Comment</span></td>
+<td class=ln><code>rts_dunningnoticecomment</code></td>
+<td class=tp>Multiline text</td>
+<td class=us>Free-text (multiline) note.</td></tr><tr class=' measure'>
+<td class=dn><span>Incurred Costs</span><span class='b b-m'>measure</span></td>
+<td class=ln><code>rts_incurredcosts</code></td>
+<td class=tp>Currency</td>
+<td class=us>Incurred cost (money) charged for this transport — additive measure. Pair with the _base column for base-currency reporting.</td></tr><tr class=' measure'>
+<td class=dn><span>&#x27;Incurred Costs&#x27; (Basis)</span><span class='b b-m'>measure</span></td>
+<td class=ln><code>rts_incurredcosts_base</code></td>
+<td class=tp>Currency</td>
+<td class=us>Incurred cost converted to the organisation&#x27;s base currency — use this for cross-currency SUMs.</td></tr><tr class=''>
+<td class=dn><span>No Show</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_noshow</code></td>
+<td class=tp>Yes/No</td>
+<td class=us>Yes/No — the transport did not show up.<div class='opts'><span class=opt><b>true</b>Yes</span><span class=opt><b>false</b>No</span></div></td></tr><tr class=''>
+<td class=dn><span>Notice</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_notice</code></td>
+<td class=tp>Yes/No</td>
+<td class=us>Yes/No — a notice/flag was raised on this transport.<div class='opts'><span class=opt><b>true</b>Yes</span><span class=opt><b>false</b>No</span></div></td></tr><tr class=''>
+<td class=dn><span>Reason for Dunning Notice</span><span class='b b-k'>key</span></td>
+<td class=ln><code>rts_reasonfordunningnotice</code></td>
+<td class=tp>Lookup → Reasons</td>
+<td class=us>Reason (Reasons dimension) attached when a dunning notice is warranted.</td></tr><tr class=''>
+<td class=dn><span>Reason short delivery</span><span class='b b-k'>key</span></td>
+<td class=ln><code>rts_reasonshortdelivery</code></td>
+<td class=tp>Lookup → Reasons</td>
+<td class=us>Reason for a short delivery (Minderlieferung) at the departure side.</td></tr><tr class=grp style='--gc:#6b7280'><td colspan=4>System / audit</td></tr><tr class=''>
+<td class=dn><span>Erstellt von</span><span class='b b-k'>key</span></td>
+<td class=ln><code>createdby</code></td>
+<td class=tp>Lookup → Users</td>
+<td class=us>Eindeutiger Bezeichner des Benutzers, der den Datensatz erstellt hat.</td></tr><tr class=''>
+<td class=dn><span>Erstellt am</span><span class='b b-d'>date</span></td>
+<td class=ln><code>createdon</code></td>
+<td class=tp>Date + time</td>
+<td class=us>Datum und Uhrzeit der Datensatzerstellung.</td></tr><tr class=''>
+<td class=dn><span>Geändert von</span><span class='b b-k'>key</span></td>
+<td class=ln><code>modifiedby</code></td>
+<td class=tp>Lookup → Users</td>
+<td class=us>Eindeutiger Bezeichner des Benutzers, der den Datensatz geändert hat.</td></tr><tr class=''>
+<td class=dn><span>Geändert am</span><span class='b b-d'>date</span></td>
+<td class=ln><code>modifiedon</code></td>
+<td class=tp>Date + time</td>
+<td class=us>Datum und Uhrzeit der Datensatzänderung.</td></tr><tr class=''>
+<td class=dn><span>Besitzer</span><span class='b b-r'>required</span></td>
+<td class=ln><code>ownerid</code></td>
+<td class=tp>Owner</td>
+<td class=us>Dataverse row owner (user/team).</td></tr><tr class=''>
+<td class=dn><span>Status</span><span class='b b-r'>required</span></td>
+<td class=ln><code>statecode</code></td>
+<td class=tp>State</td>
+<td class=us>Record state — 0 = Aktiv, 1 = Inaktiv. Filter to Aktiv (0) for live reporting.<div class='opts'><span class=opt><b>0</b>Aktiv</span><span class=opt><b>1</b>Inaktiv</span></div></td></tr><tr class=''>
+<td class=dn><span>Statusgrund</span></td>
+<td class=ln><code>statuscode</code></td>
+<td class=tp>Status reason</td>
+<td class=us>Status reason behind statecode.<div class='opts'><span class=opt><b>1</b>Aktiv</span><span class=opt><b>2</b>Inaktiv</span></div></td></tr></tbody></table></div>
+</section>
+<section id='routes' class=tbl>
+<div class=thead>
+  <div><h2>Routes <span class=kind>Dimension</span></h2>
+  <div class=meta><code>rts_route</code> · set <code>rts_routes</code> · PK <code>rts_routeid</code> · name <code>cr983_id</code> · 17 columns</div></div>
+</div>
+<p class=purpose>A route = Factory Dispatch Point (source) → Destination for a given Supplier. Defines the critical-wagon thresholds used to flag short deliveries. Weekly Plans → Route is the main dimension key.</p>
+<div class=scroll><table class=cols><thead><tr><th>Field</th><th>Logical name</th><th>Type</th><th>Meaning &amp; how it's used</th></tr></thead><tbody><tr class=''>
+<td class=dn><span>ID</span><span class='b b-r'>required</span></td>
+<td class=ln><code>cr983_id</code></td>
+<td class=tp>Text</td>
+<td class=us>Text business ID / primary name column.</td></tr><tr class=''>
+<td class=dn><span>Erstellt von</span><span class='b b-k'>key</span></td>
+<td class=ln><code>createdby</code></td>
+<td class=tp>Lookup → Users</td>
+<td class=us>Eindeutiger Bezeichner des Benutzers, der den Datensatz erstellt hat.</td></tr><tr class=''>
+<td class=dn><span>Erstellt am</span><span class='b b-d'>date</span></td>
+<td class=ln><code>createdon</code></td>
+<td class=tp>Date + time</td>
+<td class=us>Datum und Uhrzeit der Datensatzerstellung.</td></tr><tr class=''>
+<td class=dn><span>Geändert von</span><span class='b b-k'>key</span></td>
+<td class=ln><code>modifiedby</code></td>
+<td class=tp>Lookup → Users</td>
+<td class=us>Eindeutiger Bezeichner des Benutzers, der den Datensatz geändert hat.</td></tr><tr class=''>
+<td class=dn><span>Geändert am</span><span class='b b-d'>date</span></td>
+<td class=ln><code>modifiedon</code></td>
+<td class=tp>Date + time</td>
+<td class=us>Datum und Uhrzeit der Datensatzänderung.</td></tr><tr class=''>
+<td class=dn><span>Besitzer</span><span class='b b-r'>required</span></td>
+<td class=ln><code>ownerid</code></td>
+<td class=tp>Owner</td>
+<td class=us>Besitzer-ID</td></tr><tr class=''>
+<td class=dn><span>Active</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_active</code></td>
+<td class=tp>Yes/No</td>
+<td class=us>Yes/No flag — use as a slicer or COUNTROWS filter.<div class='opts'><span class=opt><b>true</b>Yes</span><span class=opt><b>false</b>No</span></div></td></tr><tr class=' measure'>
+<td class=dn><span>Critical Amount Control</span><span class='b b-m'>measure</span></td>
+<td class=ln><code>rts_criticalamountcontrol</code></td>
+<td class=tp>Decimal</td>
+<td class=us>Numeric — additive measure candidate.</td></tr><tr class=''>
+<td class=dn><span>Destination</span><span class='b b-k'>key</span></td>
+<td class=ln><code>rts_destination</code></td>
+<td class=tp>Lookup → Destinations</td>
+<td class=us>Relationship key to Destinations — model as a dimension link.</td></tr><tr class=''>
+<td class=dn><span>Factory Dispatch Point</span><span class='b b-k'>key</span></td>
+<td class=ln><code>rts_factorydispatchpoint</code></td>
+<td class=tp>Lookup → Quelles</td>
+<td class=us>Relationship key to Quelles — model as a dimension link.</td></tr><tr class=' measure'>
+<td class=dn><span>Relative Critical Wagon Amount </span><span class='b b-m'>measure</span></td>
+<td class=ln><code>rts_relativecriticalwagonamount</code></td>
+<td class=tp>Decimal</td>
+<td class=us>Numeric — additive measure candidate.</td></tr><tr class=''>
+<td class=dn><span>ReloadingRoute</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_reloadingroute</code></td>
+<td class=tp>Yes/No</td>
+<td class=us>Yes/No flag — use as a slicer or COUNTROWS filter.<div class='opts'><span class=opt><b>true</b>Yes</span><span class=opt><b>false</b>No</span></div></td></tr><tr class=''>
+<td class=dn><span>RouteKey</span></td>
+<td class=ln><code>rts_routekey</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>Supplier</span><span class='b b-k'>key</span></td>
+<td class=ln><code>rts_supplier</code></td>
+<td class=tp>Lookup → Suppliers</td>
+<td class=us>Relationship key to Suppliers — model as a dimension link.</td></tr><tr class=' measure'>
+<td class=dn><span>Wagons</span><span class='b b-m'>measure</span></td>
+<td class=ln><code>rts_wagons</code></td>
+<td class=tp>Whole number</td>
+<td class=us>Numeric — additive measure candidate.</td></tr><tr class=''>
+<td class=dn><span>Status</span><span class='b b-r'>required</span></td>
+<td class=ln><code>statecode</code></td>
+<td class=tp>State</td>
+<td class=us>Status von Route<div class='opts'><span class=opt><b>0</b>Aktiv</span><span class=opt><b>1</b>Inaktiv</span></div></td></tr><tr class=''>
+<td class=dn><span>Statusgrund</span></td>
+<td class=ln><code>statuscode</code></td>
+<td class=tp>Status reason</td>
+<td class=us>Grund für den Status von Route<div class='opts'><span class=opt><b>1</b>Aktiv</span><span class=opt><b>2</b>Inaktiv</span></div></td></tr></tbody></table></div>
+</section>
+<section id='destinations' class=tbl>
+<div class=thead>
+  <div><h2>Destinations <span class=kind>Dimension</span></h2>
+  <div class=meta><code>rts_destination</code> · set <code>rts_destinations</code> · PK <code>rts_destinationid</code> · name <code>cr983_id</code> · 20 columns</div></div>
+</div>
+<p class=purpose>Delivery end-points (plants / compounds) with address and VDS code. Referenced from Routes and Shareholders.</p>
+<div class=scroll><table class=cols><thead><tr><th>Field</th><th>Logical name</th><th>Type</th><th>Meaning &amp; how it's used</th></tr></thead><tbody><tr class=''>
+<td class=dn><span>ID</span><span class='b b-r'>required</span></td>
+<td class=ln><code>cr983_id</code></td>
+<td class=tp>Text</td>
+<td class=us>Text business ID / primary name column.</td></tr><tr class=''>
+<td class=dn><span>Erstellt von</span><span class='b b-k'>key</span></td>
+<td class=ln><code>createdby</code></td>
+<td class=tp>Lookup → Users</td>
+<td class=us>Eindeutiger Bezeichner des Benutzers, der den Datensatz erstellt hat.</td></tr><tr class=''>
+<td class=dn><span>Erstellt am</span><span class='b b-d'>date</span></td>
+<td class=ln><code>createdon</code></td>
+<td class=tp>Date + time</td>
+<td class=us>Datum und Uhrzeit der Datensatzerstellung.</td></tr><tr class=''>
+<td class=dn><span>Geändert von</span><span class='b b-k'>key</span></td>
+<td class=ln><code>modifiedby</code></td>
+<td class=tp>Lookup → Users</td>
+<td class=us>Eindeutiger Bezeichner des Benutzers, der den Datensatz geändert hat.</td></tr><tr class=''>
+<td class=dn><span>Geändert am</span><span class='b b-d'>date</span></td>
+<td class=ln><code>modifiedon</code></td>
+<td class=tp>Date + time</td>
+<td class=us>Datum und Uhrzeit der Datensatzänderung.</td></tr><tr class=''>
+<td class=dn><span>Besitzer</span><span class='b b-r'>required</span></td>
+<td class=ln><code>ownerid</code></td>
+<td class=tp>Owner</td>
+<td class=us>Besitzer-ID</td></tr><tr class=''>
+<td class=dn><span>Active</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_active</code></td>
+<td class=tp>Yes/No</td>
+<td class=us>Yes/No flag — use as a slicer or COUNTROWS filter.<div class='opts'><span class=opt><b>true</b>Yes</span><span class=opt><b>false</b>No</span></div></td></tr><tr class=''>
+<td class=dn><span>City</span></td>
+<td class=ln><code>rts_city</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>Country</span></td>
+<td class=ln><code>rts_country</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>Destination Name</span><span class='b b-r'>required</span></td>
+<td class=ln><code>rts_destinationname</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>Destination Name Short</span></td>
+<td class=ln><code>rts_destinationnameshort</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>Email</span></td>
+<td class=ln><code>rts_email</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>Location</span></td>
+<td class=ln><code>rts_location</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>Number</span></td>
+<td class=ln><code>rts_number</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>Phone</span></td>
+<td class=ln><code>rts_phone</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>Postal Code</span></td>
+<td class=ln><code>rts_postalcode</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>Street</span></td>
+<td class=ln><code>rts_street</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>VDS Code</span></td>
+<td class=ln><code>rts_vdscode</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>Status</span><span class='b b-r'>required</span></td>
+<td class=ln><code>statecode</code></td>
+<td class=tp>State</td>
+<td class=us>Status von Destination<div class='opts'><span class=opt><b>0</b>Aktiv</span><span class=opt><b>1</b>Inaktiv</span></div></td></tr><tr class=''>
+<td class=dn><span>Statusgrund</span></td>
+<td class=ln><code>statuscode</code></td>
+<td class=tp>Status reason</td>
+<td class=us>Grund für den Status von Destination<div class='opts'><span class=opt><b>1</b>Aktiv</span><span class=opt><b>2</b>Inaktiv</span></div></td></tr></tbody></table></div>
+</section>
+<section id='quelles' class=tbl>
+<div class=thead>
+  <div><h2>Quelles <span class=kind>Dimension</span></h2>
+  <div class=meta><code>rts_factorydispatchpoint</code> · set <code>rts_factorydispatchpoints</code> · PK <code>rts_factorydispatchpointid</code> · name <code>cr983_id</code> · 18 columns</div></div>
+</div>
+<p class=purpose>Factory dispatch points — the physical origin (Quelle) of a transport, with address and reloading flag. Referenced from Routes.</p>
+<div class=scroll><table class=cols><thead><tr><th>Field</th><th>Logical name</th><th>Type</th><th>Meaning &amp; how it's used</th></tr></thead><tbody><tr class=''>
+<td class=dn><span>ID</span><span class='b b-r'>required</span></td>
+<td class=ln><code>cr983_id</code></td>
+<td class=tp>Text</td>
+<td class=us>Text business ID / primary name column.</td></tr><tr class=''>
+<td class=dn><span>Erstellt von</span><span class='b b-k'>key</span></td>
+<td class=ln><code>createdby</code></td>
+<td class=tp>Lookup → Users</td>
+<td class=us>Eindeutiger Bezeichner des Benutzers, der den Datensatz erstellt hat.</td></tr><tr class=''>
+<td class=dn><span>Erstellt am</span><span class='b b-d'>date</span></td>
+<td class=ln><code>createdon</code></td>
+<td class=tp>Date + time</td>
+<td class=us>Datum und Uhrzeit der Datensatzerstellung.</td></tr><tr class=''>
+<td class=dn><span>Geändert von</span><span class='b b-k'>key</span></td>
+<td class=ln><code>modifiedby</code></td>
+<td class=tp>Lookup → Users</td>
+<td class=us>Eindeutiger Bezeichner des Benutzers, der den Datensatz geändert hat.</td></tr><tr class=''>
+<td class=dn><span>Geändert am</span><span class='b b-d'>date</span></td>
+<td class=ln><code>modifiedon</code></td>
+<td class=tp>Date + time</td>
+<td class=us>Datum und Uhrzeit der Datensatzänderung.</td></tr><tr class=''>
+<td class=dn><span>Besitzer</span><span class='b b-r'>required</span></td>
+<td class=ln><code>ownerid</code></td>
+<td class=tp>Owner</td>
+<td class=us>Besitzer-ID</td></tr><tr class=''>
+<td class=dn><span>City</span></td>
+<td class=ln><code>rts_city</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>Contact</span><span class='b b-k'>key</span></td>
+<td class=ln><code>rts_contact</code></td>
+<td class=tp>Lookup → Shareholders</td>
+<td class=us>Relationship key to Shareholders — model as a dimension link.</td></tr><tr class=''>
+<td class=dn><span>Dispatch Point Name</span><span class='b b-r'>required</span></td>
+<td class=ln><code>rts_dispatchpointname</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>Factory Dipatch Name Short</span></td>
+<td class=ln><code>rts_factorydipatchnameshort</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>Location</span></td>
+<td class=ln><code>rts_location</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>Number</span></td>
+<td class=ln><code>rts_number</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>Postal Code</span></td>
+<td class=ln><code>rts_postalcode</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>ReloadingRoute</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_reloadingroute</code></td>
+<td class=tp>Yes/No</td>
+<td class=us>Yes/No flag — use as a slicer or COUNTROWS filter.<div class='opts'><span class=opt><b>true</b>Yes</span><span class=opt><b>false</b>No</span></div></td></tr><tr class=''>
+<td class=dn><span>Street Name</span></td>
+<td class=ln><code>rts_streetname</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>VDS Code</span></td>
+<td class=ln><code>rts_vdscode</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>Status</span><span class='b b-r'>required</span></td>
+<td class=ln><code>statecode</code></td>
+<td class=tp>State</td>
+<td class=us>Status von Factory Dispatch Point<div class='opts'><span class=opt><b>0</b>Aktiv</span><span class=opt><b>1</b>Inaktiv</span></div></td></tr><tr class=''>
+<td class=dn><span>Statusgrund</span></td>
+<td class=ln><code>statuscode</code></td>
+<td class=tp>Status reason</td>
+<td class=us>Grund für den Status von Factory Dispatch Point<div class='opts'><span class=opt><b>1</b>Aktiv</span><span class=opt><b>2</b>Inaktiv</span></div></td></tr></tbody></table></div>
+</section>
+<section id='suppliers' class=tbl>
+<div class=thead>
+  <div><h2>Suppliers <span class=kind>Dimension</span></h2>
+  <div class=meta><code>rts_supplier1</code> · set <code>rts_supplier1s</code> · PK <code>rts_supplier1id</code> · name <code>cr983_id</code> · 12 columns</div></div>
+</div>
+<p class=purpose>The rail/logistics service providers (Dienstleister) responsible for transports. Referenced from Routes and Weekly Plans.</p>
+<div class=scroll><table class=cols><thead><tr><th>Field</th><th>Logical name</th><th>Type</th><th>Meaning &amp; how it's used</th></tr></thead><tbody><tr class=''>
+<td class=dn><span>ID</span><span class='b b-r'>required</span></td>
+<td class=ln><code>cr983_id</code></td>
+<td class=tp>Text</td>
+<td class=us>Text business ID / primary name column.</td></tr><tr class=''>
+<td class=dn><span>Erstellt von</span><span class='b b-k'>key</span></td>
+<td class=ln><code>createdby</code></td>
+<td class=tp>Lookup → Users</td>
+<td class=us>Eindeutiger Bezeichner des Benutzers, der den Datensatz erstellt hat.</td></tr><tr class=''>
+<td class=dn><span>Erstellt am</span><span class='b b-d'>date</span></td>
+<td class=ln><code>createdon</code></td>
+<td class=tp>Date + time</td>
+<td class=us>Datum und Uhrzeit der Datensatzerstellung.</td></tr><tr class=''>
+<td class=dn><span>Geändert von</span><span class='b b-k'>key</span></td>
+<td class=ln><code>modifiedby</code></td>
+<td class=tp>Lookup → Users</td>
+<td class=us>Eindeutiger Bezeichner des Benutzers, der den Datensatz geändert hat.</td></tr><tr class=''>
+<td class=dn><span>Geändert am</span><span class='b b-d'>date</span></td>
+<td class=ln><code>modifiedon</code></td>
+<td class=tp>Date + time</td>
+<td class=us>Datum und Uhrzeit der Datensatzänderung.</td></tr><tr class=''>
+<td class=dn><span>Besitzer</span><span class='b b-r'>required</span></td>
+<td class=ln><code>ownerid</code></td>
+<td class=tp>Owner</td>
+<td class=us>Besitzer-ID</td></tr><tr class=''>
+<td class=dn><span>Contact Email</span></td>
+<td class=ln><code>rts_contactemail</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>Contact Phone</span></td>
+<td class=ln><code>rts_contactphone</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>Supplier Name</span><span class='b b-r'>required</span></td>
+<td class=ln><code>rts_suppliername</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>Supplier Name Short</span></td>
+<td class=ln><code>rts_suppliernameshort</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>Status</span><span class='b b-r'>required</span></td>
+<td class=ln><code>statecode</code></td>
+<td class=tp>State</td>
+<td class=us>Status von Supplier<div class='opts'><span class=opt><b>0</b>Aktiv</span><span class=opt><b>1</b>Inaktiv</span></div></td></tr><tr class=''>
+<td class=dn><span>Statusgrund</span></td>
+<td class=ln><code>statuscode</code></td>
+<td class=tp>Status reason</td>
+<td class=us>Grund für den Status von Supplier<div class='opts'><span class=opt><b>1</b>Aktiv</span><span class=opt><b>2</b>Inaktiv</span></div></td></tr></tbody></table></div>
+</section>
+<section id='shareholders' class=tbl>
+<div class=thead>
+  <div><h2>Shareholders <span class=kind>Dimension / people</span></h2>
+  <div class=meta><code>rts_shareholder</code> · set <code>rts_shareholders</code> · PK <code>rts_shareholderid</code> · name <code>cr983_id</code> · 17 columns</div></div>
+</div>
+<p class=purpose>People and their organisational role in the process (Supplier, Destination, Factory Dispatch Point, Center of Competence). Weekly Plans carries six &#x27;Responsible for …&#x27; lookups into this table — one per lifecycle stage. Links a Dataverse user to their business role.</p>
+<div class=scroll><table class=cols><thead><tr><th>Field</th><th>Logical name</th><th>Type</th><th>Meaning &amp; how it's used</th></tr></thead><tbody><tr class=''>
+<td class=dn><span>ID</span><span class='b b-r'>required</span></td>
+<td class=ln><code>cr983_id</code></td>
+<td class=tp>Text</td>
+<td class=us>Text business ID / primary name column.</td></tr><tr class=''>
+<td class=dn><span>Erstellt von</span><span class='b b-k'>key</span></td>
+<td class=ln><code>createdby</code></td>
+<td class=tp>Lookup → Users</td>
+<td class=us>Eindeutiger Bezeichner des Benutzers, der den Datensatz erstellt hat.</td></tr><tr class=''>
+<td class=dn><span>Erstellt am</span><span class='b b-d'>date</span></td>
+<td class=ln><code>createdon</code></td>
+<td class=tp>Date + time</td>
+<td class=us>Datum und Uhrzeit der Datensatzerstellung.</td></tr><tr class=''>
+<td class=dn><span>Geändert von</span><span class='b b-k'>key</span></td>
+<td class=ln><code>modifiedby</code></td>
+<td class=tp>Lookup → Users</td>
+<td class=us>Eindeutiger Bezeichner des Benutzers, der den Datensatz geändert hat.</td></tr><tr class=''>
+<td class=dn><span>Geändert am</span><span class='b b-d'>date</span></td>
+<td class=ln><code>modifiedon</code></td>
+<td class=tp>Date + time</td>
+<td class=us>Datum und Uhrzeit der Datensatzänderung.</td></tr><tr class=''>
+<td class=dn><span>Besitzer</span><span class='b b-r'>required</span></td>
+<td class=ln><code>ownerid</code></td>
+<td class=tp>Owner</td>
+<td class=us>Besitzer-ID</td></tr><tr class=''>
+<td class=dn><span>Destination</span><span class='b b-k'>key</span></td>
+<td class=ln><code>rts_destination</code></td>
+<td class=tp>Lookup → Destinations</td>
+<td class=us>Relationship key to Destinations — model as a dimension link.</td></tr><tr class=''>
+<td class=dn><span>Email</span></td>
+<td class=ln><code>rts_email</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>Factory Dispatch Point</span><span class='b b-k'>key</span></td>
+<td class=ln><code>rts_factorydispatchpoint</code></td>
+<td class=tp>Lookup → Quelles</td>
+<td class=us>Relationship key to Quelles — model as a dimension link.</td></tr><tr class=''>
+<td class=dn><span>Full Name</span><span class='b b-r'>required</span></td>
+<td class=ln><code>rts_fullname</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>Phone</span></td>
+<td class=ln><code>rts_phone</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>Role</span><span class='b b-c'>choice</span><span class='b b-r'>required</span></td>
+<td class=ln><code>rts_role</code></td>
+<td class=tp>Multi-choice</td>
+<td class=us>Multi-select choice — stored as a comma-separated set of option values.<div class='opts'><span class=opt><b>593090000</b>Destination</span><span class=opt><b>593090001</b>Supplier</span><span class=opt><b>593090002</b>Factory Dispatch Point</span><span class=opt><b>593090003</b>Center of Competence</span></div></td></tr><tr class=''>
+<td class=dn><span>RTS Team</span><span class='b b-k'>key</span></td>
+<td class=ln><code>rts_rtsteam</code></td>
+<td class=tp>Lookup → Teams</td>
+<td class=us>Relationship key to Teams — model as a dimension link.</td></tr><tr class=''>
+<td class=dn><span>Supplier</span><span class='b b-k'>key</span></td>
+<td class=ln><code>rts_supplier</code></td>
+<td class=tp>Lookup → Suppliers</td>
+<td class=us>Relationship key to Suppliers — model as a dimension link.</td></tr><tr class=''>
+<td class=dn><span>User</span><span class='b b-k'>key</span></td>
+<td class=ln><code>rts_user</code></td>
+<td class=tp>Lookup → Users</td>
+<td class=us>Relationship key to Users — model as a dimension link.</td></tr><tr class=''>
+<td class=dn><span>Status</span><span class='b b-r'>required</span></td>
+<td class=ln><code>statecode</code></td>
+<td class=tp>State</td>
+<td class=us>Status von Shareholder<div class='opts'><span class=opt><b>0</b>Aktiv</span><span class=opt><b>1</b>Inaktiv</span></div></td></tr><tr class=''>
+<td class=dn><span>Statusgrund</span></td>
+<td class=ln><code>statuscode</code></td>
+<td class=tp>Status reason</td>
+<td class=us>Grund für den Status von Shareholder<div class='opts'><span class=opt><b>1</b>Aktiv</span><span class=opt><b>2</b>Inaktiv</span></div></td></tr></tbody></table></div>
+</section>
+<section id='reference-weeks' class=tbl>
+<div class=thead>
+  <div><h2>Reference Weeks <span class=kind>Template</span></h2>
+  <div class=meta><code>rts_referenceweek</code> · set <code>rts_referenceweeks</code> · PK <code>rts_referenceweekid</code> · name <code>rts_id</code> · 13 columns</div></div>
+</div>
+<p class=purpose>The standing weekly template — the recurring baseline of transports per route/weekday. New Weekly Plans rows are generated from these; rts_createdbyreferenceweek / rts_differfromreferenceweek on the fact flag that lineage.</p>
+<div class=scroll><table class=cols><thead><tr><th>Field</th><th>Logical name</th><th>Type</th><th>Meaning &amp; how it's used</th></tr></thead><tbody><tr class=''>
+<td class=dn><span>Erstellt von</span><span class='b b-k'>key</span></td>
+<td class=ln><code>createdby</code></td>
+<td class=tp>Lookup → Users</td>
+<td class=us>Eindeutiger Bezeichner des Benutzers, der den Datensatz erstellt hat.</td></tr><tr class=''>
+<td class=dn><span>Erstellt am</span><span class='b b-d'>date</span></td>
+<td class=ln><code>createdon</code></td>
+<td class=tp>Date + time</td>
+<td class=us>Datum und Uhrzeit der Datensatzerstellung.</td></tr><tr class=''>
+<td class=dn><span>Geändert von</span><span class='b b-k'>key</span></td>
+<td class=ln><code>modifiedby</code></td>
+<td class=tp>Lookup → Users</td>
+<td class=us>Eindeutiger Bezeichner des Benutzers, der den Datensatz geändert hat.</td></tr><tr class=''>
+<td class=dn><span>Geändert am</span><span class='b b-d'>date</span></td>
+<td class=ln><code>modifiedon</code></td>
+<td class=tp>Date + time</td>
+<td class=us>Datum und Uhrzeit der Datensatzänderung.</td></tr><tr class=''>
+<td class=dn><span>Besitzer</span><span class='b b-r'>required</span></td>
+<td class=ln><code>ownerid</code></td>
+<td class=tp>Owner</td>
+<td class=us>Besitzer-ID</td></tr><tr class=''>
+<td class=dn><span>ID</span><span class='b b-r'>required</span></td>
+<td class=ln><code>rts_id</code></td>
+<td class=tp>Text</td>
+<td class=us>Text business ID / primary name column.</td></tr><tr class=''>
+<td class=dn><span>Route</span><span class='b b-k'>key</span></td>
+<td class=ln><code>rts_route</code></td>
+<td class=tp>Lookup → Routes</td>
+<td class=us>Relationship key to Routes — model as a dimension link.</td></tr><tr class=''>
+<td class=dn><span>Wagonprofil</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_wagonprofil</code></td>
+<td class=tp>Choice</td>
+<td class=us>Choice — Power BI reads the integer value; see the value map.<div class='opts'><span class=opt><b>914890000</b>G1</span><span class=opt><b>914890001</b>G2</span></div></td></tr><tr class=' measure'>
+<td class=dn><span>Wagons</span><span class='b b-m'>measure</span></td>
+<td class=ln><code>rts_wagons</code></td>
+<td class=tp>Whole number</td>
+<td class=us>Numeric — additive measure candidate.</td></tr><tr class=''>
+<td class=dn><span>Wagon Type</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_wagontype</code></td>
+<td class=tp>Choice</td>
+<td class=us>Choice — Power BI reads the integer value; see the value map.<div class='opts'><span class=opt><b>914890000</b>Offen</span><span class=opt><b>914890001</b>Geschlossen</span><span class=opt><b>914890002</b>Offen + Geschlossen</span></div></td></tr><tr class=''>
+<td class=dn><span>Weekday</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_weekday</code></td>
+<td class=tp>Choice</td>
+<td class=us>Choice — Power BI reads the integer value; see the value map.<div class='opts opts-lg'><span class=opt><b>914890000</b>Montag</span><span class=opt><b>914890001</b>Dienstag</span><span class=opt><b>914890002</b>Mittwoch</span><span class=opt><b>914890003</b>Donnerstag</span><span class=opt><b>914890004</b>Freitag</span><span class=opt><b>914890005</b>Samstag</span><span class=opt><b>914890006</b>Sonntag</span></div></td></tr><tr class=''>
+<td class=dn><span>Status</span><span class='b b-r'>required</span></td>
+<td class=ln><code>statecode</code></td>
+<td class=tp>State</td>
+<td class=us>Status von Reference Week<div class='opts'><span class=opt><b>0</b>Aktiv</span><span class=opt><b>1</b>Inaktiv</span></div></td></tr><tr class=''>
+<td class=dn><span>Statusgrund</span></td>
+<td class=ln><code>statuscode</code></td>
+<td class=tp>Status reason</td>
+<td class=us>Grund für den Status von Reference Week<div class='opts'><span class=opt><b>1</b>Aktiv</span><span class=opt><b>2</b>Inaktiv</span></div></td></tr></tbody></table></div>
+</section>
+<section id='deadlines' class=tbl>
+<div class=thead>
+  <div><h2>Deadlines <span class=kind>Config</span></h2>
+  <div class=meta><code>rts_deadlines</code> · set <code>rts_deadlineses</code> · PK <code>rts_deadlinesid</code> · name <code>rts_id</code> · 25 columns</div></div>
+</div>
+<p class=purpose>Per-transport-status deadline rules: for each status, which weekday (and time) the deadline falls on. Drives the calculation of Required / Ordered / Confirmed deadlines on the fact.</p>
+<div class=scroll><table class=cols><thead><tr><th>Field</th><th>Logical name</th><th>Type</th><th>Meaning &amp; how it's used</th></tr></thead><tbody><tr class=''>
+<td class=dn><span>Erstellt von</span><span class='b b-k'>key</span></td>
+<td class=ln><code>createdby</code></td>
+<td class=tp>Lookup → Users</td>
+<td class=us>Eindeutiger Bezeichner des Benutzers, der den Datensatz erstellt hat.</td></tr><tr class=''>
+<td class=dn><span>Erstellt am</span><span class='b b-d'>date</span></td>
+<td class=ln><code>createdon</code></td>
+<td class=tp>Date + time</td>
+<td class=us>Datum und Uhrzeit der Datensatzerstellung.</td></tr><tr class=''>
+<td class=dn><span>Geändert von</span><span class='b b-k'>key</span></td>
+<td class=ln><code>modifiedby</code></td>
+<td class=tp>Lookup → Users</td>
+<td class=us>Eindeutiger Bezeichner des Benutzers, der den Datensatz geändert hat.</td></tr><tr class=''>
+<td class=dn><span>Geändert am</span><span class='b b-d'>date</span></td>
+<td class=ln><code>modifiedon</code></td>
+<td class=tp>Date + time</td>
+<td class=us>Datum und Uhrzeit der Datensatzänderung.</td></tr><tr class=''>
+<td class=dn><span>Besitzer</span><span class='b b-r'>required</span></td>
+<td class=ln><code>ownerid</code></td>
+<td class=tp>Owner</td>
+<td class=us>Besitzer-ID</td></tr><tr class=''>
+<td class=dn><span>Comment</span></td>
+<td class=ln><code>rts_comment</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>DeadlineDayDefault</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_deadlinedaydefault</code></td>
+<td class=tp>Choice</td>
+<td class=us>Choice — Power BI reads the integer value; see the value map.<div class='opts opts-lg'><span class=opt><b>914890000</b>Montag</span><span class=opt><b>914890001</b>Dienstag</span><span class=opt><b>914890002</b>Mittwoch</span><span class=opt><b>914890003</b>Donnerstag</span><span class=opt><b>914890004</b>Freitag</span><span class=opt><b>914890005</b>Samstag</span><span class=opt><b>914890006</b>Sonntag</span></div></td></tr><tr class=''>
+<td class=dn><span>DeadlineDayFriday</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_deadlinedayfriday</code></td>
+<td class=tp>Choice</td>
+<td class=us>Choice — Power BI reads the integer value; see the value map.<div class='opts opts-lg'><span class=opt><b>914890000</b>Montag</span><span class=opt><b>914890001</b>Dienstag</span><span class=opt><b>914890002</b>Mittwoch</span><span class=opt><b>914890003</b>Donnerstag</span><span class=opt><b>914890004</b>Freitag</span><span class=opt><b>914890005</b>Samstag</span><span class=opt><b>914890006</b>Sonntag</span></div></td></tr><tr class=''>
+<td class=dn><span>DeadlineDayMonday</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_deadlinedaymonday</code></td>
+<td class=tp>Choice</td>
+<td class=us>Choice — Power BI reads the integer value; see the value map.<div class='opts opts-lg'><span class=opt><b>914890000</b>Montag</span><span class=opt><b>914890001</b>Dienstag</span><span class=opt><b>914890002</b>Mittwoch</span><span class=opt><b>914890003</b>Donnerstag</span><span class=opt><b>914890004</b>Freitag</span><span class=opt><b>914890005</b>Samstag</span><span class=opt><b>914890006</b>Sonntag</span></div></td></tr><tr class=''>
+<td class=dn><span>DeadlineDaySaturday</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_deadlinedaysaturday</code></td>
+<td class=tp>Choice</td>
+<td class=us>Choice — Power BI reads the integer value; see the value map.<div class='opts opts-lg'><span class=opt><b>914890000</b>Montag</span><span class=opt><b>914890001</b>Dienstag</span><span class=opt><b>914890002</b>Mittwoch</span><span class=opt><b>914890003</b>Donnerstag</span><span class=opt><b>914890004</b>Freitag</span><span class=opt><b>914890005</b>Samstag</span><span class=opt><b>914890006</b>Sonntag</span></div></td></tr><tr class=''>
+<td class=dn><span>DeadlineDayThursday</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_deadlinedaythursday</code></td>
+<td class=tp>Choice</td>
+<td class=us>Choice — Power BI reads the integer value; see the value map.<div class='opts opts-lg'><span class=opt><b>914890000</b>Montag</span><span class=opt><b>914890001</b>Dienstag</span><span class=opt><b>914890002</b>Mittwoch</span><span class=opt><b>914890003</b>Donnerstag</span><span class=opt><b>914890004</b>Freitag</span><span class=opt><b>914890005</b>Samstag</span><span class=opt><b>914890006</b>Sonntag</span></div></td></tr><tr class=''>
+<td class=dn><span>DeadlineDayTuesday</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_deadlinedaytuesday</code></td>
+<td class=tp>Choice</td>
+<td class=us>Choice — Power BI reads the integer value; see the value map.<div class='opts opts-lg'><span class=opt><b>914890000</b>Montag</span><span class=opt><b>914890001</b>Dienstag</span><span class=opt><b>914890002</b>Mittwoch</span><span class=opt><b>914890003</b>Donnerstag</span><span class=opt><b>914890004</b>Freitag</span><span class=opt><b>914890005</b>Samstag</span><span class=opt><b>914890006</b>Sonntag</span></div></td></tr><tr class=''>
+<td class=dn><span>DeadlineDayWednesday</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_deadlinedaywednesday</code></td>
+<td class=tp>Choice</td>
+<td class=us>Choice — Power BI reads the integer value; see the value map.<div class='opts opts-lg'><span class=opt><b>914890000</b>Montag</span><span class=opt><b>914890001</b>Dienstag</span><span class=opt><b>914890002</b>Mittwoch</span><span class=opt><b>914890003</b>Donnerstag</span><span class=opt><b>914890004</b>Freitag</span><span class=opt><b>914890005</b>Samstag</span><span class=opt><b>914890006</b>Sonntag</span></div></td></tr><tr class=''>
+<td class=dn><span>DeadlineName</span></td>
+<td class=ln><code>rts_deadlinename</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>DeadlineTimeDefault</span></td>
+<td class=ln><code>rts_deadlinetimedefault</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>DeadlineTimeFriday</span></td>
+<td class=ln><code>rts_deadlinetimefriday</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>DeadlineTimeMonday</span></td>
+<td class=ln><code>rts_deadlinetimemonday</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>DeadlineTimeSaturday</span></td>
+<td class=ln><code>rts_deadlinetimesaturday</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>DeadlineTimeThursday</span></td>
+<td class=ln><code>rts_deadlinetimethursday</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>DeadlineTimeTuesday</span></td>
+<td class=ln><code>rts_deadlinetimetuesday</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>DeadlineTimeWednesday</span></td>
+<td class=ln><code>rts_deadlinetimewednesday</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>ID</span><span class='b b-r'>required</span></td>
+<td class=ln><code>rts_id</code></td>
+<td class=tp>Text</td>
+<td class=us>Text business ID / primary name column.</td></tr><tr class=''>
+<td class=dn><span>TransportStatus</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_transportstatus</code></td>
+<td class=tp>Choice</td>
+<td class=us>Choice — Power BI reads the integer value; see the value map.<div class='opts opts-lg'><span class=opt><b>914890004</b>00 - Offener Bedarf</span><span class=opt><b>914890011</b>01 - Bedarf in Prüfung</span><span class=opt><b>914890018</b>02 - Bedarf geprüft</span><span class=opt><b>914890000</b>03 - Bedarf versendet</span><span class=opt><b>914890017</b>10 - Bestellung geprüft</span><span class=opt><b>914890001</b>11 - Bestellung versendet</span><span class=opt><b>914890002</b>12 - Bestätigung erfolgt</span><span class=opt><b>914890019</b>12.1 - Bestätigung erfolgt durch keine Antwort</span><span class=opt><b>914890020</b>12.2 - Bestätigung editiert zurückgemeldet</span><span class=opt><b>914890021</b>13 - Bestätigung geprüft</span><span class=opt><b>914890003</b>14 - Bestellbestätigung versendet</span><span class=opt><b>914890005</b>21 - Lieferung erwartet</span><span class=opt><b>914890006</b>22 - Lieferung erfolgt</span><span class=opt><b>914890007</b>31 - Beladung erfolgt</span><span class=opt><b>914890016</b>32 - Beladung erfolgt &amp; kritische Menge unterschritten</span><span class=opt><b>914890013</b>41 - Lieferung (beladen) erwartet</span><span class=opt><b>914890012</b>42 - Lieferung (beladen) erfolgt</span><span class=opt><b>914890008</b>98 -  Storno angefordert</span><span class=opt><b>914890009</b>99 - Storniert</span><span class=opt><b>914890010</b>90 - Mahnung in Prüfung</span><span class=opt><b>914890014</b>91 - Mahnung versendet</span><span class=opt><b>914890015</b>92 - Zug ausgefallen</span></div></td></tr><tr class=''>
+<td class=dn><span>Status</span><span class='b b-r'>required</span></td>
+<td class=ln><code>statecode</code></td>
+<td class=tp>State</td>
+<td class=us>Status von Deadlines<div class='opts'><span class=opt><b>0</b>Aktiv</span><span class=opt><b>1</b>Inaktiv</span></div></td></tr><tr class=''>
+<td class=dn><span>Statusgrund</span></td>
+<td class=ln><code>statuscode</code></td>
+<td class=tp>Status reason</td>
+<td class=us>Grund für den Status von Deadlines<div class='opts'><span class=opt><b>1</b>Aktiv</span><span class=opt><b>2</b>Inaktiv</span></div></td></tr></tbody></table></div>
+</section>
+<section id='calendars' class=tbl>
+<div class=thead>
+  <div><h2>Calendars <span class=kind>Date dimension</span></h2>
+  <div class=meta><code>rts_calendar</code> · set <code>rts_calendars</code> · PK <code>rts_calendarid</code> · name <code>cr983_id</code> · 25 columns</div></div>
+</div>
+<p class=purpose>A full date dimension — one row per calendar day with week number, ISO week-year, quarter, month, weekday, weekend and holiday flags. Use this as the Power BI date table; Weekly Plans links to it via Transport Date and Order Date.</p>
+<div class=scroll><table class=cols><thead><tr><th>Field</th><th>Logical name</th><th>Type</th><th>Meaning &amp; how it's used</th></tr></thead><tbody><tr class=''>
+<td class=dn><span>ID</span><span class='b b-r'>required</span></td>
+<td class=ln><code>cr983_id</code></td>
+<td class=tp>Text</td>
+<td class=us>Text business ID / primary name column.</td></tr><tr class=''>
+<td class=dn><span>Erstellt von</span><span class='b b-k'>key</span></td>
+<td class=ln><code>createdby</code></td>
+<td class=tp>Lookup → Users</td>
+<td class=us>Eindeutiger Bezeichner des Benutzers, der den Datensatz erstellt hat.</td></tr><tr class=''>
+<td class=dn><span>Erstellt am</span><span class='b b-d'>date</span></td>
+<td class=ln><code>createdon</code></td>
+<td class=tp>Date + time</td>
+<td class=us>Datum und Uhrzeit der Datensatzerstellung.</td></tr><tr class=''>
+<td class=dn><span>Geändert von</span><span class='b b-k'>key</span></td>
+<td class=ln><code>modifiedby</code></td>
+<td class=tp>Lookup → Users</td>
+<td class=us>Eindeutiger Bezeichner des Benutzers, der den Datensatz geändert hat.</td></tr><tr class=''>
+<td class=dn><span>Geändert am</span><span class='b b-d'>date</span></td>
+<td class=ln><code>modifiedon</code></td>
+<td class=tp>Date + time</td>
+<td class=us>Datum und Uhrzeit der Datensatzänderung.</td></tr><tr class=''>
+<td class=dn><span>Besitzer</span><span class='b b-r'>required</span></td>
+<td class=ln><code>ownerid</code></td>
+<td class=tp>Owner</td>
+<td class=us>Besitzer-ID</td></tr><tr class=''>
+<td class=dn><span>Date</span><span class='b b-d'>date</span><span class='b b-r'>required</span></td>
+<td class=ln><code>rts_date</code></td>
+<td class=tp>Date</td>
+<td class=us>Date — join to Calendars for a time axis.</td></tr><tr class=''>
+<td class=dn><span>Date Text</span></td>
+<td class=ln><code>rts_datetext</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=' measure'>
+<td class=dn><span>Day Number</span><span class='b b-m'>measure</span></td>
+<td class=ln><code>rts_daynumber</code></td>
+<td class=tp>Whole number</td>
+<td class=us>Numeric — additive measure candidate.</td></tr><tr class=''>
+<td class=dn><span>Day of Week</span><span class='b b-c'>choice</span><span class='b b-r'>required</span></td>
+<td class=ln><code>rts_dayofweek</code></td>
+<td class=tp>Choice</td>
+<td class=us>Choice — Power BI reads the integer value; see the value map.<div class='opts opts-lg'><span class=opt><b>593090000</b>Monday</span><span class=opt><b>593090001</b>Tuesday</span><span class=opt><b>593090002</b>Wednesday</span><span class=opt><b>593090003</b>Thursday</span><span class=opt><b>593090004</b>Friday</span><span class=opt><b>593090005</b>Saturday</span><span class=opt><b>593090006</b>Sunday</span></div></td></tr><tr class=''>
+<td class=dn><span>Holdiday</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_holdiday</code></td>
+<td class=tp>Yes/No</td>
+<td class=us>Yes/No flag — use as a slicer or COUNTROWS filter.<div class='opts'><span class=opt><b>true</b>Yes</span><span class=opt><b>false</b>No</span></div></td></tr><tr class=''>
+<td class=dn><span>HolidayName</span></td>
+<td class=ln><code>rts_holidayname</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>Is Weekend</span><span class='b b-c'>choice</span><span class='b b-r'>required</span></td>
+<td class=ln><code>rts_isweekend</code></td>
+<td class=tp>Yes/No</td>
+<td class=us>Yes/No flag — use as a slicer or COUNTROWS filter.<div class='opts'><span class=opt><b>true</b>Yes</span><span class=opt><b>false</b>No</span></div></td></tr><tr class=''>
+<td class=dn><span>Month</span><span class='b b-c'>choice</span><span class='b b-r'>required</span></td>
+<td class=ln><code>rts_month</code></td>
+<td class=tp>Choice</td>
+<td class=us>Choice — Power BI reads the integer value; see the value map.<div class='opts opts-lg'><span class=opt><b>593090000</b>January</span><span class=opt><b>593090001</b>February</span><span class=opt><b>593090002</b>March</span><span class=opt><b>593090003</b>April</span><span class=opt><b>593090004</b>May</span><span class=opt><b>593090005</b>June</span><span class=opt><b>593090006</b>July</span><span class=opt><b>593090007</b>August</span><span class=opt><b>593090008</b>September</span><span class=opt><b>593090009</b>October</span><span class=opt><b>593090010</b>November</span><span class=opt><b>593090011</b>December</span></div></td></tr><tr class=''>
+<td class=dn><span>Month Number</span></td>
+<td class=ln><code>rts_monthnumber</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>Month Short MMM</span></td>
+<td class=ln><code>rts_monthshortmmm</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>Quarter</span><span class='b b-c'>choice</span><span class='b b-r'>required</span></td>
+<td class=ln><code>rts_quarter</code></td>
+<td class=tp>Choice</td>
+<td class=us>Choice — Power BI reads the integer value; see the value map.<div class='opts'><span class=opt><b>593090000</b>Q1</span><span class=opt><b>593090001</b>Q2</span><span class=opt><b>593090002</b>Q3</span><span class=opt><b>593090003</b>Q4</span></div></td></tr><tr class=''>
+<td class=dn><span>Quarter Year Long</span></td>
+<td class=ln><code>rts_quarteryearlong</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>Quarter Year Short</span></td>
+<td class=ln><code>rts_quarteryearshort</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=' measure'>
+<td class=dn><span>Week Number</span><span class='b b-m'>measure</span><span class='b b-r'>required</span></td>
+<td class=ln><code>rts_weeknumber</code></td>
+<td class=tp>Whole number</td>
+<td class=us>Numeric — additive measure candidate.</td></tr><tr class=''>
+<td class=dn><span>Week Year</span></td>
+<td class=ln><code>rts_weekyear</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=' measure'>
+<td class=dn><span>Year</span><span class='b b-m'>measure</span><span class='b b-r'>required</span></td>
+<td class=ln><code>rts_year</code></td>
+<td class=tp>Whole number</td>
+<td class=us>Numeric — additive measure candidate.</td></tr><tr class=''>
+<td class=dn><span>Year Month</span></td>
+<td class=ln><code>rts_yearmonth</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>Status</span><span class='b b-r'>required</span></td>
+<td class=ln><code>statecode</code></td>
+<td class=tp>State</td>
+<td class=us>Status von Calendar<div class='opts'><span class=opt><b>0</b>Aktiv</span><span class=opt><b>1</b>Inaktiv</span></div></td></tr><tr class=''>
+<td class=dn><span>Statusgrund</span></td>
+<td class=ln><code>statuscode</code></td>
+<td class=tp>Status reason</td>
+<td class=us>Grund für den Status von Calendar<div class='opts'><span class=opt><b>1</b>Aktiv</span><span class=opt><b>2</b>Inaktiv</span></div></td></tr></tbody></table></div>
+</section>
+<section id='dunning-notices' class=tbl>
+<div class=thead>
+  <div><h2>Dunning Notices <span class=kind>Fact (secondary)</span></h2>
+  <div class=meta><code>rts_dunningnotice</code> · set <code>rts_dunningnotices</code> · PK <code>rts_dunningnoticeid</code> · name <code>cr983_id</code> · 18 columns</div></div>
+</div>
+<p class=purpose>Dunning / penalty notices (Mahnungen) raised against a Weekly Plan, with amount due, status and reason. One-to-many from Weekly Plans.</p>
+<div class=scroll><table class=cols><thead><tr><th>Field</th><th>Logical name</th><th>Type</th><th>Meaning &amp; how it's used</th></tr></thead><tbody><tr class=''>
+<td class=dn><span>ID</span><span class='b b-r'>required</span></td>
+<td class=ln><code>cr983_id</code></td>
+<td class=tp>Text</td>
+<td class=us>Text business ID / primary name column.</td></tr><tr class=''>
+<td class=dn><span>Erstellt von</span><span class='b b-k'>key</span></td>
+<td class=ln><code>createdby</code></td>
+<td class=tp>Lookup → Users</td>
+<td class=us>Eindeutiger Bezeichner des Benutzers, der den Datensatz erstellt hat.</td></tr><tr class=''>
+<td class=dn><span>Erstellt am</span><span class='b b-d'>date</span></td>
+<td class=ln><code>createdon</code></td>
+<td class=tp>Date + time</td>
+<td class=us>Datum und Uhrzeit der Datensatzerstellung.</td></tr><tr class=''>
+<td class=dn><span>Geändert von</span><span class='b b-k'>key</span></td>
+<td class=ln><code>modifiedby</code></td>
+<td class=tp>Lookup → Users</td>
+<td class=us>Eindeutiger Bezeichner des Benutzers, der den Datensatz geändert hat.</td></tr><tr class=''>
+<td class=dn><span>Geändert am</span><span class='b b-d'>date</span></td>
+<td class=ln><code>modifiedon</code></td>
+<td class=tp>Date + time</td>
+<td class=us>Datum und Uhrzeit der Datensatzänderung.</td></tr><tr class=''>
+<td class=dn><span>Besitzer</span><span class='b b-r'>required</span></td>
+<td class=ln><code>ownerid</code></td>
+<td class=tp>Owner</td>
+<td class=us>Besitzer-ID</td></tr><tr class=' measure'>
+<td class=dn><span>Amount Due</span><span class='b b-m'>measure</span></td>
+<td class=ln><code>rts_amountdue</code></td>
+<td class=tp>Currency</td>
+<td class=us>Currency amount — additive measure.</td></tr><tr class=' measure'>
+<td class=dn><span>&#x27;Amount Due&#x27; (Basis)</span><span class='b b-m'>measure</span></td>
+<td class=ln><code>rts_amountdue_base</code></td>
+<td class=tp>Currency</td>
+<td class=us>Wert von &#x27;Amount Due&#x27; in der Basiswährung.</td></tr><tr class=''>
+<td class=dn><span>Description</span></td>
+<td class=ln><code>rts_description</code></td>
+<td class=tp>Multiline text</td>
+<td class=us>Free-text (multiline) note.</td></tr><tr class=''>
+<td class=dn><span>Due Date</span><span class='b b-d'>date</span></td>
+<td class=ln><code>rts_duedate</code></td>
+<td class=tp>Date</td>
+<td class=us>Date — join to Calendars for a time axis.</td></tr><tr class=''>
+<td class=dn><span>Notice Date</span><span class='b b-d'>date</span></td>
+<td class=ln><code>rts_noticedate</code></td>
+<td class=tp>Date</td>
+<td class=us>Date — join to Calendars for a time axis.</td></tr><tr class=''>
+<td class=dn><span>Notice for</span><span class='b b-k'>key</span></td>
+<td class=ln><code>rts_noticefor</code></td>
+<td class=tp>Lookup → Shareholders</td>
+<td class=us>Relationship key to Shareholders — model as a dimension link.</td></tr><tr class=''>
+<td class=dn><span>Notice Status</span><span class='b b-c'>choice</span><span class='b b-r'>required</span></td>
+<td class=ln><code>rts_noticestatus</code></td>
+<td class=tp>Choice</td>
+<td class=us>Choice — Power BI reads the integer value; see the value map.<div class='opts'><span class=opt><b>593090002</b>Sent</span><span class=opt><b>593090001</b>Pending</span><span class=opt><b>914890001</b>Paid</span></div></td></tr><tr class=''>
+<td class=dn><span>Reason for Dunning Notice</span><span class='b b-k'>key</span></td>
+<td class=ln><code>rts_reasonfordunningnotice</code></td>
+<td class=tp>Lookup → Reasons</td>
+<td class=us>Relationship key to Reasons — model as a dimension link.</td></tr><tr class=''>
+<td class=dn><span>Recipient</span></td>
+<td class=ln><code>rts_recipient</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>Weekly Plan</span><span class='b b-k'>key</span></td>
+<td class=ln><code>rts_weeklyplan</code></td>
+<td class=tp>Lookup → Weekly Plans</td>
+<td class=us>Relationship key to Weekly Plans — model as a dimension link.</td></tr><tr class=''>
+<td class=dn><span>Status</span><span class='b b-r'>required</span></td>
+<td class=ln><code>statecode</code></td>
+<td class=tp>State</td>
+<td class=us>Status von Dunning Notice<div class='opts'><span class=opt><b>0</b>Aktiv</span><span class=opt><b>1</b>Inaktiv</span></div></td></tr><tr class=''>
+<td class=dn><span>Statusgrund</span></td>
+<td class=ln><code>statuscode</code></td>
+<td class=tp>Status reason</td>
+<td class=us>Grund für den Status von Dunning Notice<div class='opts'><span class=opt><b>1</b>Aktiv</span><span class=opt><b>2</b>Inaktiv</span></div></td></tr></tbody></table></div>
+</section>
+<section id='reasons-for-dunning-notices' class=tbl>
+<div class=thead>
+  <div><h2>Reasons for Dunning Notices <span class=kind>Dimension</span></h2>
+  <div class=meta><code>rts_reasonfordunningnotice</code> · set <code>rts_reasonfordunningnotices</code> · PK <code>rts_reasonfordunningnoticeid</code> · name <code>cr983_id</code> · 13 columns</div></div>
+</div>
+<p class=purpose>The catalogue of reasons (grouped by Kategorie) used for dunning notices, short-delivery reasons and cancellation reasons. Referenced from several lookups on the fact and from Dunning Notices.</p>
+<div class=scroll><table class=cols><thead><tr><th>Field</th><th>Logical name</th><th>Type</th><th>Meaning &amp; how it's used</th></tr></thead><tbody><tr class=''>
+<td class=dn><span>ID</span><span class='b b-r'>required</span></td>
+<td class=ln><code>cr983_id</code></td>
+<td class=tp>Text</td>
+<td class=us>Text business ID / primary name column.</td></tr><tr class=''>
+<td class=dn><span>Erstellt von</span><span class='b b-k'>key</span></td>
+<td class=ln><code>createdby</code></td>
+<td class=tp>Lookup → Users</td>
+<td class=us>Eindeutiger Bezeichner des Benutzers, der den Datensatz erstellt hat.</td></tr><tr class=''>
+<td class=dn><span>Erstellt am</span><span class='b b-d'>date</span></td>
+<td class=ln><code>createdon</code></td>
+<td class=tp>Date + time</td>
+<td class=us>Datum und Uhrzeit der Datensatzerstellung.</td></tr><tr class=''>
+<td class=dn><span>Geändert von</span><span class='b b-k'>key</span></td>
+<td class=ln><code>modifiedby</code></td>
+<td class=tp>Lookup → Users</td>
+<td class=us>Eindeutiger Bezeichner des Benutzers, der den Datensatz geändert hat.</td></tr><tr class=''>
+<td class=dn><span>Geändert am</span><span class='b b-d'>date</span></td>
+<td class=ln><code>modifiedon</code></td>
+<td class=tp>Date + time</td>
+<td class=us>Datum und Uhrzeit der Datensatzänderung.</td></tr><tr class=''>
+<td class=dn><span>Besitzer</span><span class='b b-r'>required</span></td>
+<td class=ln><code>ownerid</code></td>
+<td class=tp>Owner</td>
+<td class=us>Besitzer-ID</td></tr><tr class=''>
+<td class=dn><span>Active</span><span class='b b-c'>choice</span><span class='b b-r'>required</span></td>
+<td class=ln><code>rts_active</code></td>
+<td class=tp>Yes/No</td>
+<td class=us>Yes/No flag — use as a slicer or COUNTROWS filter.<div class='opts'><span class=opt><b>true</b>Yes</span><span class=opt><b>false</b>No</span></div></td></tr><tr class=''>
+<td class=dn><span>Cluster</span></td>
+<td class=ln><code>rts_cluster</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>Dropdown</span></td>
+<td class=ln><code>rts_dropdown</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>Kategorie</span><span class='b b-c'>choice</span></td>
+<td class=ln><code>rts_kategorie</code></td>
+<td class=tp>Choice</td>
+<td class=us>Choice — Power BI reads the integer value; see the value map.<div class='opts'><span class=opt><b>914890000</b>BMW Intern</span><span class=opt><b>914890001</b>Dienstleister</span><span class=opt><b>914890002</b>Hafen / Compound</span><span class=opt><b>914890003</b>Witterung / Höhere Gewalt</span><span class=opt><b>914890007</b>Sonstiges / Unklar</span><span class=opt><b>914890008</b>Kein Grund angegeben</span></div></td></tr><tr class=''>
+<td class=dn><span>Reason Name</span><span class='b b-r'>required</span></td>
+<td class=ln><code>rts_reasonname</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>Status</span><span class='b b-r'>required</span></td>
+<td class=ln><code>statecode</code></td>
+<td class=tp>State</td>
+<td class=us>Status von Reason for Dunning Notice<div class='opts'><span class=opt><b>0</b>Aktiv</span><span class=opt><b>1</b>Inaktiv</span></div></td></tr><tr class=''>
+<td class=dn><span>Statusgrund</span></td>
+<td class=ln><code>statuscode</code></td>
+<td class=tp>Status reason</td>
+<td class=us>Grund für den Status von Reason for Dunning Notice<div class='opts'><span class=opt><b>1</b>Aktiv</span><span class=opt><b>2</b>Inaktiv</span></div></td></tr></tbody></table></div>
+</section>
+<section id='translations' class=tbl>
+<div class=thead>
+  <div><h2>Translations <span class=kind>Config / UI</span></h2>
+  <div class=meta><code>rts_translation</code> · set <code>rts_translations</code> · PK <code>rts_translationid</code> · name <code>rts_id</code> · 12 columns</div></div>
+</div>
+<p class=purpose>Key–value UI translation strings for the canvas app (TextID → Text). Not typically needed for reporting.</p>
+<div class=scroll><table class=cols><thead><tr><th>Field</th><th>Logical name</th><th>Type</th><th>Meaning &amp; how it's used</th></tr></thead><tbody><tr class=''>
+<td class=dn><span>Erstellt von</span><span class='b b-k'>key</span></td>
+<td class=ln><code>createdby</code></td>
+<td class=tp>Lookup → Users</td>
+<td class=us>Eindeutiger Bezeichner des Benutzers, der den Datensatz erstellt hat.</td></tr><tr class=''>
+<td class=dn><span>Erstellt am</span><span class='b b-d'>date</span></td>
+<td class=ln><code>createdon</code></td>
+<td class=tp>Date + time</td>
+<td class=us>Datum und Uhrzeit der Datensatzerstellung.</td></tr><tr class=''>
+<td class=dn><span>Geändert von</span><span class='b b-k'>key</span></td>
+<td class=ln><code>modifiedby</code></td>
+<td class=tp>Lookup → Users</td>
+<td class=us>Eindeutiger Bezeichner des Benutzers, der den Datensatz geändert hat.</td></tr><tr class=''>
+<td class=dn><span>Geändert am</span><span class='b b-d'>date</span></td>
+<td class=ln><code>modifiedon</code></td>
+<td class=tp>Date + time</td>
+<td class=us>Datum und Uhrzeit der Datensatzänderung.</td></tr><tr class=''>
+<td class=dn><span>Besitzer</span><span class='b b-r'>required</span></td>
+<td class=ln><code>ownerid</code></td>
+<td class=tp>Owner</td>
+<td class=us>Besitzer-ID</td></tr><tr class=''>
+<td class=dn><span>Abbreviation</span><span class='b b-r'>required</span></td>
+<td class=ln><code>rts_abbreviation</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>ID</span><span class='b b-r'>required</span></td>
+<td class=ln><code>rts_id</code></td>
+<td class=tp>Text</td>
+<td class=us>Text business ID / primary name column.</td></tr><tr class=''>
+<td class=dn><span>Name</span><span class='b b-r'>required</span></td>
+<td class=ln><code>rts_name</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>Text</span><span class='b b-r'>required</span></td>
+<td class=ln><code>rts_text</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>TextID</span><span class='b b-r'>required</span></td>
+<td class=ln><code>rts_textid</code></td>
+<td class=tp>Text</td>
+<td class=us>Free text.</td></tr><tr class=''>
+<td class=dn><span>Status</span><span class='b b-r'>required</span></td>
+<td class=ln><code>statecode</code></td>
+<td class=tp>State</td>
+<td class=us>Status von Translation<div class='opts'><span class=opt><b>0</b>Aktiv</span><span class=opt><b>1</b>Inaktiv</span></div></td></tr><tr class=''>
+<td class=dn><span>Statusgrund</span></td>
+<td class=ln><code>statuscode</code></td>
+<td class=tp>Status reason</td>
+<td class=us>Grund für den Status von Translation<div class='opts'><span class=opt><b>1</b>Aktiv</span><span class=opt><b>2</b>Inaktiv</span></div></td></tr></tbody></table></div>
+</section>
+
+  <p class="footer"><b>Handover version — 3 August 2026.</b> Describes solution <code>UC_otd_3104</code> in environment <code>c06da98d-80be-eed0-b9df-c8dfbc600157</code>, with the Dataverse tables in <code>orgf7d737ab.crm4.dynamics.com</code>.<br>Generated from the Dataverse attribute metadata carried in the RTS canvas app (<code>otd3104_rtsapp</code>) of solution <code>UC_otd_3104</code>. Column meanings for custom fields are curated from the RTS process; system/audit columns carry Microsoft's standard descriptions. Choice value→label maps are exact as stored.</p>
+</main>
+</div>

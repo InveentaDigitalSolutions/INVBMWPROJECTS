@@ -10,6 +10,8 @@ Technical documentation for BMW engagements. One folder per project.
 | Project | Folder | Platform | Status |
 |---|---|---|---|
 | QMT Fremdleistung Grossticket (UC_enb_266) | [`qmt-fremdleistung/`](qmt-fremdleistung/) | Power Apps Canvas + Power Automate + SharePoint | Delivered, in test |
+| Rail Tracking System (UC_otd_3104) | [`rail-tracking-system/`](rail-tracking-system/) | Power Apps Canvas + Power Automate + Dataverse (two environments) + web masks | In development |
+| Race to Quality (UC_enb_485) | `race-to-quality/` | Power Apps Canvas + Power Automate + SharePoint | Pending — awaiting a Studio sync |
 
 ## Conventions
 
