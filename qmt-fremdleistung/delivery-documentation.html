@@ -1,0 +1,695 @@
+<meta charset="utf-8">
+<title>QMT Fremdleistung Grossticket — Delivery Documentation</title>
+<style>
+  :root{
+    --paper:#e9edf1; --surface:#ffffff; --surface-2:#f3f5f8; --surface-3:#e3e8ee;
+    --ink:#15202b; --ink-2:#41505f; --muted:#6d7c8c;
+    --line:#d4dbe3; --line-2:#e4e9ef;
+    --accent:#33508c; --accent-ink:#263d6d; --accent-soft:#e6ebf5;
+    --amber:#8a6112; --amber-soft:#f5eedd;
+    --good:#3a6f4c; --good-soft:#e3efe7;
+    --code-bg:#e9eef3; --code-ink:#2c4a63;
+    --shadow:0 1px 2px rgba(18,30,45,.05), 0 10px 26px rgba(18,30,45,.05);
+    --serif:ui-serif,"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --paper:#0f151b; --surface:#171f27; --surface-2:#1c242d; --surface-3:#232c37;
+      --ink:#e6ecf3; --ink-2:#b1bfcd; --muted:#8493a3;
+      --line:#2a343f; --line-2:#222b34;
+      --accent:#7f9bd4; --accent-ink:#a5bce6; --accent-soft:#1a2333;
+      --amber:#cfa451; --amber-soft:#2a2314;
+      --good:#6db487; --good-soft:#152a1e;
+      --code-bg:#1e2731; --code-ink:#9dc3dd;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 12px 30px rgba(0,0,0,.34);
+    }
+  }
+  :root[data-theme="light"]{
+    --paper:#e9edf1; --surface:#ffffff; --surface-2:#f3f5f8; --surface-3:#e3e8ee;
+    --ink:#15202b; --ink-2:#41505f; --muted:#6d7c8c;
+    --line:#d4dbe3; --line-2:#e4e9ef;
+    --accent:#33508c; --accent-ink:#263d6d; --accent-soft:#e6ebf5;
+    --amber:#8a6112; --amber-soft:#f5eedd;
+    --good:#3a6f4c; --good-soft:#e3efe7;
+    --code-bg:#e9eef3; --code-ink:#2c4a63;
+    --shadow:0 1px 2px rgba(18,30,45,.05), 0 10px 26px rgba(18,30,45,.05);
+  }
+  :root[data-theme="dark"]{
+    --paper:#0f151b; --surface:#171f27; --surface-2:#1c242d; --surface-3:#232c37;
+    --ink:#e6ecf3; --ink-2:#b1bfcd; --muted:#8493a3;
+    --line:#2a343f; --line-2:#222b34;
+    --accent:#7f9bd4; --accent-ink:#a5bce6; --accent-soft:#1a2333;
+    --amber:#cfa451; --amber-soft:#2a2314;
+    --good:#6db487; --good-soft:#152a1e;
+    --code-bg:#1e2731; --code-ink:#9dc3dd;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 12px 30px rgba(0,0,0,.34);
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+    font-size:15.5px;line-height:1.62;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{margin:0;font-family:var(--serif);font-weight:600;letter-spacing:-.008em;text-wrap:balance}
+  p{margin:0}
+  code{font-family:var(--mono);font-size:.85em;background:var(--code-bg);color:var(--code-ink);
+    padding:.1em .4em;border-radius:4px}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  a:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:3px}
+
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;
+    color:var(--muted);font-weight:500}
+
+  /* ---------- masthead ---------- */
+  .masthead{background:var(--surface);border-bottom:1px solid var(--line);
+    padding:clamp(30px,5vw,52px) clamp(18px,5vw,60px) 0}
+  .masthead-in{max-width:1180px;margin:0 auto}
+  .masthead h1{font-size:clamp(27px,3.7vw,42px);margin:.3em 0 .28em;max-width:22ch}
+  .masthead .lede{color:var(--ink-2);max-width:66ch;font-size:17px}
+  .facts{display:flex;flex-wrap:wrap;gap:7px;margin-top:22px}
+  .facts span{font-family:var(--mono);font-size:11.5px;background:var(--surface-2);color:var(--ink-2);
+    border:1px solid var(--line);padding:5px 10px;border-radius:3px;font-variant-numeric:tabular-nums}
+
+  /* board strip — the six active buckets + two history buckets, as the app shows them */
+  .board{display:flex;gap:6px;margin:30px 0 0;overflow-x:auto;padding-bottom:26px}
+  .bkt{flex:1 0 128px;background:var(--surface-2);border:1px solid var(--line);
+    border-top:3px solid var(--accent);border-radius:4px;padding:9px 11px 11px}
+  .bkt.hist{border-top-color:var(--muted);opacity:.82}
+  .bkt b{display:block;font-weight:600;font-size:12.5px;line-height:1.32}
+  .bkt em{display:block;font-family:var(--mono);font-style:normal;font-size:10.5px;
+    color:var(--muted);margin-top:5px;letter-spacing:.04em}
+
+  /* ---------- layout ---------- */
+  .wrap{display:grid;grid-template-columns:230px minmax(0,1fr);max-width:1180px;
+    margin:0 auto;align-items:start}
+  .spine{position:sticky;top:0;padding:38px 26px 40px 0;font-size:13.5px}
+  .spine ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px}
+  .spine a{display:flex;gap:10px;padding:6px 10px 6px 0;color:var(--ink-2);border-left:2px solid var(--line);
+    padding-left:13px;line-height:1.35}
+  .spine a:hover{color:var(--accent);border-left-color:var(--accent);text-decoration:none;background:var(--surface-2)}
+  .spine .n{font-family:var(--mono);font-size:11px;color:var(--muted);padding-top:2px;min-width:14px}
+  .main{padding:38px 0 90px;min-width:0}
+
+  section{scroll-margin-top:18px;padding-bottom:14px}
+  section + section{margin-top:44px;border-top:1px solid var(--line);padding-top:38px}
+  section > h2{font-size:25px;margin-bottom:6px}
+  section > .eyebrow{display:block;margin-bottom:9px}
+  section > p{max-width:68ch;margin-top:14px;color:var(--ink-2)}
+  section > p.tight{margin-top:9px}
+  h3{font-size:17px;margin:30px 0 4px}
+  h3 + p{max-width:68ch;margin-top:6px;color:var(--ink-2)}
+
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:6px;
+    padding:20px 22px;box-shadow:var(--shadow);margin-top:20px}
+  .card > h3:first-child{margin-top:0}
+
+  ul.list{margin:12px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:9px;max-width:70ch}
+  ul.list li{padding-left:17px;position:relative;color:var(--ink-2)}
+  ul.list li::before{content:"";position:absolute;left:0;top:.63em;width:6px;height:1px;background:var(--accent)}
+  ul.list li b{color:var(--ink);font-weight:600}
+
+  /* delivered-items grid */
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(268px,1fr));gap:14px;margin-top:20px}
+  .item{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:16px 18px}
+  .item h4{margin:0 0 6px;font-size:14.5px;font-weight:650;font-family:var(--sans);letter-spacing:0}
+  .item p{font-size:14px;color:var(--ink-2)}
+
+  /* tables */
+  .scroll{overflow-x:auto;margin-top:20px;border:1px solid var(--line);border-radius:6px;background:var(--surface)}
+  table{border-collapse:collapse;width:100%;font-size:14px;min-width:520px}
+  th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line-2);vertical-align:top}
+  thead th{background:var(--surface-2);font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;
+    font-family:var(--mono);font-weight:500;color:var(--muted);white-space:nowrap}
+  tbody tr:last-child td{border-bottom:none}
+  td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+
+  /* status pills */
+  .pill{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;
+    text-transform:uppercase;padding:3px 8px;border-radius:3px;border:1px solid transparent;white-space:nowrap}
+  .pill.done{background:var(--good-soft);color:var(--good);border-color:var(--good)}
+  .pill.open{background:var(--amber-soft);color:var(--amber);border-color:var(--amber)}
+  .pill.info{background:var(--accent-soft);color:var(--accent-ink);border-color:var(--accent)}
+
+  .note{background:var(--surface-2);border-left:3px solid var(--accent);border-radius:0 5px 5px 0;
+    padding:15px 18px;margin-top:20px;max-width:72ch}
+  .note.warn{border-left-color:var(--amber)}
+  .note p{color:var(--ink-2);font-size:14.5px}
+  .note p + p{margin-top:9px}
+  .note strong{color:var(--ink)}
+
+  /* checklist */
+  .check{margin-top:18px}
+  .check details{border:1px solid var(--line);border-radius:6px;background:var(--surface);margin-bottom:8px}
+  .check summary{cursor:pointer;padding:12px 16px;font-weight:600;font-size:14.5px;
+    display:flex;justify-content:space-between;gap:14px;align-items:center;list-style:none}
+  .check summary::-webkit-details-marker{display:none}
+  .check summary::after{content:"+";font-family:var(--mono);color:var(--muted);font-weight:400}
+  .check details[open] summary::after{content:"–"}
+  .check details[open] summary{border-bottom:1px solid var(--line-2)}
+  .check .body{padding:14px 16px 16px}
+  .check ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+  .check li{padding-left:24px;position:relative;color:var(--ink-2);font-size:14.5px}
+  .check li::before{content:"";position:absolute;left:0;top:.28em;width:12px;height:12px;
+    border:1px solid var(--muted);border-radius:2px}
+  .check .new{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--accent-ink);background:var(--accent-soft);border:1px solid var(--accent);
+    padding:2px 6px;border-radius:3px;font-weight:500}
+
+  .footer{border-top:1px solid var(--line);margin-top:56px;padding-top:22px;color:var(--muted);font-size:13.5px;
+    max-width:70ch}
+
+  @media (max-width:860px){
+    .wrap{grid-template-columns:minmax(0,1fr);padding:0 clamp(18px,5vw,40px)}
+    .spine{position:static;padding:26px 0 0;border-bottom:1px solid var(--line)}
+    .spine ol{flex-direction:row;flex-wrap:wrap;gap:6px}
+    .spine a{border-left:none;border:1px solid var(--line);border-radius:3px;padding:5px 10px}
+    .main{padding-top:26px}
+  }
+  @media (min-width:861px){
+    .wrap{padding:0 clamp(18px,5vw,60px)}
+  }
+</style>
+
+<header class="masthead">
+  <div class="masthead-in">
+    <span class="eyebrow">Use Case UC_enb_266 · Delivery Documentation</span>
+    <h1>QMT Fremdleistung Grossticket — Performance &amp; Completeness</h1>
+    <p class="lede">What was rebuilt in the ticket board, why it was necessary, what the numbers on
+      screen now mean, and what is still open. Prepared for handover.</p>
+    <div class="facts">
+      <span>Canvas App · SharePoint Online</span>
+      <span>Tickets ≈ 2.086</span>
+      <span>Tickets HIS ≈ 1.201</span>
+      <span>6 active buckets · 2 history buckets</span>
+      <span>Status: delivered, in test</span>
+    </div>
+    <div class="board" role="img" aria-label="The eight board buckets: six active statuses and two history statuses">
+      <div class="bkt"><b>Ticket-Pool</b><em>aktiv</em></div>
+      <div class="bkt"><b>In Vorbereitung</b><em>aktiv</em></div>
+      <div class="bkt"><b>Kick-Off</b><em>aktiv</em></div>
+      <div class="bkt"><b>In Bearbeitung</b><em>aktiv</em></div>
+      <div class="bkt"><b>Kontrolle</b><em>aktiv</em></div>
+      <div class="bkt"><b>In Bezahlprozess</b><em>aktiv</em></div>
+      <div class="bkt hist"><b>Abgeschlossen</b><em>Historie</em></div>
+      <div class="bkt hist"><b>Abgebrochen</b><em>Historie</em></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav class="spine" aria-label="Contents">
+    <ol>
+      <li><a href="#situation"><span class="n">1</span><span>The situation before</span></a></li>
+      <li><a href="#approach"><span class="n">2</span><span>The approach</span></a></li>
+      <li><a href="#delivered"><span class="n">3</span><span>What was delivered</span></a></li>
+      <li><a href="#result"><span class="n">4</span><span>Measured result</span></a></li>
+      <li><a href="#reading"><span class="n">5</span><span>Reading the board</span></a></li>
+      <li><a href="#test"><span class="n">6</span><span>Test checklist</span></a></li>
+      <li><a href="#open"><span class="n">7</span><span>Open items</span></a></li>
+      <li><a href="#limits"><span class="n">8</span><span>Known limits</span></a></li>
+      <li><a href="#where"><span class="n">9</span><span>Where things live</span></a></li>
+    </ol>
+  </nav>
+
+  <main class="main">
+
+    <section id="situation">
+      <span class="eyebrow">Section 1</span>
+      <h2>The situation before</h2>
+      <p>The board loaded its data by pulling the entire ticket list into the app when the app
+        started, then filtering and searching inside that copy. Two things followed from that, and
+        the second one was the serious one.</p>
+
+      <ul class="list">
+        <li><b>The app was slow to become usable.</b> Every start paid for every ticket, whether the
+          user looked at one bucket or all six.</li>
+        <li><b>Tickets went missing from filters and search.</b> The platform stops handing over rows
+          at a fixed limit. Beyond it, the app simply did not have the ticket in memory — so a filter
+          or a search that should have found it returned nothing, with no error and no warning. The
+          board looked correct and was incomplete.</li>
+        <li><b>Bucket counts could not be trusted</b>, because they were counted from the same
+          truncated copy.</li>
+      </ul>
+
+      <div class="note warn">
+        <p><strong>Why this matters more than speed.</strong> A slow board is visible and people work
+          around it. A board that silently omits tickets is invisible, and the user has no way to tell
+          a genuinely empty result from a truncated one. Completeness, not speed, drove the design of
+          the rebuild.</p>
+      </div>
+    </section>
+
+    <section id="approach">
+      <span class="eyebrow">Section 2</span>
+      <h2>The approach</h2>
+      <p>Instead of copying the list into the app and filtering there, the app now asks SharePoint a
+        precise question and receives only the answer. The filtering, the searching and the counting
+        all happen on the server.</p>
+
+      <div class="grid">
+        <div class="item">
+          <h4>The app asks, SharePoint answers</h4>
+          <p>Every search, filter and tab change is translated into a single query and sent to
+            SharePoint through a service call. The platform row limit no longer applies, because the
+            app never asks for rows it will not show.</p>
+        </div>
+        <div class="item">
+          <h4>Load what is on screen</h4>
+          <p>Each bucket loads its first 20 tickets, newest first. More are fetched only when the user
+            asks for them. Opening the app costs 120 tickets in the active view, not the whole list.</p>
+        </div>
+        <div class="item">
+          <h4>Counts come from the source</h4>
+          <p>The number next to each bucket is counted by SharePoint across the whole list under the
+            same filter as the board — not from what happens to be loaded.</p>
+        </div>
+      </div>
+
+      <p>The two service calls run at the same time, so the board and its counts arrive together
+        rather than one after the other.</p>
+    </section>
+
+    <section id="delivered">
+      <span class="eyebrow">Section 3</span>
+      <h2>What was delivered</h2>
+      <p>Grouped by what a user experiences. Everything listed here is live in the app.</p>
+
+      <h3>Loading and completeness</h3>
+      <ul class="list">
+        <li><b>Server-side loading</b> for both the active and the history view, newest ticket first.</li>
+        <li><b>20 tickets per bucket on open</b>, so no bucket starts empty and no bucket dominates
+          the initial load.</li>
+        <li><b>„Mehr laden"</b> per bucket, adding 50 more each time, in the Kanban view and in the
+          list view. Loading more in one bucket does not disturb the others.</li>
+        <li><b>A loaded / total counter</b> on every bucket header, so a partly loaded bucket is
+          visibly partly loaded.</li>
+        <li><b>Active and history</b> are separate tabs, each with its own buckets, counts and paging
+          state.</li>
+      </ul>
+
+      <h3>Search</h3>
+      <ul class="list">
+        <li>Searches <b>ticket name, IPQ-Umfangs-ID, Abteilung, Projektphase and Ticketgröße</b> in one field.</li>
+        <li><b>Finds a word anywhere in the ticket name</b>, not only at the beginning.</li>
+        <li><b>Accepts the ticket number</b>, with or without the <code>QMT-FL-</code> prefix.</li>
+        <li><b>Handles apostrophes</b> in search terms and filter values, which previously produced an error.</li>
+        <li>The search waits for the user to stop typing before querying, instead of firing on every keystroke.</li>
+      </ul>
+
+      <h3>Filters</h3>
+      <p>Thirteen filters, all applied on the server and all combinable. Eight of them accept several
+        values at once and return the union.</p>
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr><th>Filter</th><th>Selection</th><th>Filter</th><th>Selection</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Abteilung</td><td><span class="pill info">mehrfach</span></td><td>Zugewiesen an</td><td><span class="pill info">mehrfach</span></td></tr>
+            <tr><td>Unterabteilung</td><td><span class="pill info">mehrfach</span></td><td>Vertreter</td><td><span class="pill info">mehrfach</span></td></tr>
+            <tr><td>Priorität</td><td><span class="pill info">mehrfach</span></td><td>BMW Ansprechpartner CLQ</td><td><span class="pill info">mehrfach</span></td></tr>
+            <tr><td>Dienstleister</td><td><span class="pill info">mehrfach</span></td><td>Ersteller</td><td><span class="pill info">mehrfach</span></td></tr>
+            <tr><td>Kontrollstatus</td><td>einfach</td><td>Erstellt ab</td><td>Datum</td></tr>
+            <tr><td>Projektphase</td><td>einfach</td><td>Erstellt bis</td><td>Datum</td></tr>
+            <tr><td>Ticketgröße</td><td>einfach</td><td></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <ul class="list">
+        <li><b>Filter chips</b> show what is currently applied; removing one chip removes only that
+          filter and re-runs the search.</li>
+        <li><b>A filter counter</b> in the status line matches the number of chips.</li>
+        <li><b>„Alle löschen"</b> clears everything and reloads the board unfiltered.</li>
+        <li>Changing a selection and closing the panel without searching <b>reverts</b> to what the
+          board is actually showing, so the panel never lies about the current view.</li>
+      </ul>
+
+      <h3>Meine / Alle and roles</h3>
+      <ul class="list">
+        <li><b>Meine</b> returns tickets where the user is Ersteller, Zugewiesen an, Vertreter or
+          BMW Ansprechpartner CLQ.</li>
+        <li><b>Alle</b> returns the tickets of the departments assigned to the user.</li>
+        <li><b>Externe Steuerung</b> is scoped differently by design: Meine returns tickets assigned
+          to the user, Alle returns the tickets of the user's Dienstleister.</li>
+        <li>The scope survives a language switch and a tab switch.</li>
+      </ul>
+
+      <h3>Views and language</h3>
+      <ul class="list">
+        <li><b>Kanban / Liste toggle.</b> The list view shows ID, Erstellt am, Projektphase, Abteilung,
+          Enddatum, Lieferant and Komponente, and carries the same filters, search, counters and
+          „Mehr laden" as the Kanban view.</li>
+        <li><b>Enddatum</b> is the phase end date for ItO tickets and is empty for OtD.</li>
+        <li>Opening a ticket from either view opens the correct ticket, and opening a batch opens the
+          whole batch.</li>
+        <li><b>DE / EN toggle on the board itself</b>, not only on the start screen.</li>
+      </ul>
+
+      <h3>Correctness fixes</h3>
+      <p>These are defects that were found and closed during the engagement. Several of them could
+        write wrong data, which is why they were prioritised ahead of any remaining tuning.</p>
+      <ul class="list">
+        <li><b>Batch save.</b> Saving a batch now fetches the batch from SharePoint at save time and
+          updates every member — including members not visible under the current filter. Previously it
+          worked from the loaded copy, so a filtered board could save an incomplete batch.</li>
+        <li><b>Batch delete.</b> The same correction, plus a guard: a ticket with no BatchID is treated
+          as a single ticket. Without that guard, deleting one legacy ticket without a BatchID would
+          have deleted every loaded ticket without a BatchID.</li>
+        <li><b>A safety stop</b> on batch operations above four tickets, matching the maximum batch size.</li>
+        <li><b>Bucket counts count tickets, not batches.</b> The history totals now match the item
+          count of the SharePoint list exactly. This was the mismatch reported from the business side.</li>
+        <li><b>Ticketgröße filter and search</b> now match on the Ticketumfang value that is shown
+          everywhere else in the app, so filter, search and form agree.</li>
+        <li><b>Six form dropdowns</b> (Dienstleister, Komponente, Lead-Derivat, Folge-Derivat,
+          Abteilung, Interessenvertretung) searched an internal system column and returned nothing when
+          typed into. They now search the name.</li>
+        <li><b>Long source lists</b> (Lieferanten, Checklisten, Interessenvertretung) were being cut off
+          at the platform limit in the ticket form; they are now queried so that all entries are reachable.</li>
+        <li><b>Errors are shown.</b> A failed query now produces a message instead of an empty board.</li>
+      </ul>
+
+      <h3>Platform hygiene</h3>
+      <ul class="list">
+        <li><b>Seven SharePoint indexes</b> added on the columns the board filters and sorts by, so the
+          queries stay fast as the lists grow.</li>
+        <li>Both service calls run under the identity of the person using the app, so a user only ever
+          receives what they are entitled to see.</li>
+      </ul>
+    </section>
+
+    <section id="result">
+      <span class="eyebrow">Section 4</span>
+      <h2>Measured result</h2>
+      <p>Measured in the app with instrumentation that has since been kept for diagnostics. Times are
+        for a full board load: the query, the counts and rendering.</p>
+
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr><th>Scenario</th><th class="num">Tickets</th><th class="num">Server</th><th class="num">Total</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Alle, no filter</td><td class="num">120</td><td class="num">1.738 ms</td><td class="num">3.623 ms</td></tr>
+            <tr><td>Alle, one filter</td><td class="num">120</td><td class="num">1.287 ms</td><td class="num">3.060 ms</td></tr>
+            <tr><td>Meine</td><td class="num">4</td><td class="num">1.257 ms</td><td class="num">1.794 ms</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>Two observations shaped where the remaining effort went, and where it deliberately stopped.</p>
+      <ul class="list">
+        <li><b>The query itself is flat.</b> Fetching 200, 500 or 2.000 tickets all completed in roughly
+          the same time. The cost is the round trip, not the volume — so asking for more tickets is
+          cheap, and asking more often is not.</li>
+        <li><b>About 1,25 seconds of every load is platform overhead</b> for invoking the service call.
+          Further tuning on the server side would not move it. The remainder scales with the number of
+          tickets rendered, at roughly 11 ms per ticket.</li>
+      </ul>
+
+      <div class="note">
+        <p><strong>Why 20 per bucket, and not fewer.</strong> Fewer tickets would load faster, but 20
+          already means a bucket can be showing less than it holds. Reducing it further was rejected: the
+          engagement is about the board being complete, and the counter plus „Mehr laden" is what closes
+          that gap honestly.</p>
+      </div>
+    </section>
+
+    <section id="reading">
+      <span class="eyebrow">Section 5</span>
+      <h2>Reading the board</h2>
+      <p>Three things on screen mean something specific. They are worth knowing before testing,
+        because two of them look like defects if read the wrong way.</p>
+
+      <h3>The counter, for example 20/538</h3>
+      <p>The left number is how many tickets of that bucket are currently loaded. The right number is
+        how many exist in SharePoint under the current filter. They are meant to differ — that is the
+        counter doing its job. „Mehr laden" raises the left number until the two meet, at which point
+        the button disappears.</p>
+
+      <h3>Batches in Ticket-Pool and In Vorbereitung</h3>
+      <p>An ItO batch is several tickets that share one ticket number, one per phase. Each of those
+        tickets appears as its own card, marked with the span of the batch — a three-phase batch shows
+        three cards, each labelled T1-T3. Both halves of the counter count the same thing, so they
+        agree. What changed in August is the total: a three-phase batch now contributes three to it,
+        not one, which is why the numbers in these two buckets read higher than before.</p>
+
+      <h3>History totals</h3>
+      <p>A history bucket total is now exactly the item count you see in the SharePoint list under the
+        same filter. If the two ever disagree, that is a defect and worth reporting.</p>
+    </section>
+
+    <section id="test">
+      <span class="eyebrow">Section 6</span>
+      <h2>Test checklist</h2>
+      <p>Updated to match the delivered state. Data changes should be verified in the SharePoint list
+        as well as on the board, because the board reloads after every save or delete.</p>
+      <p class="tight"><span class="pill info">note</span> Meine / Alle cannot be told apart by an
+        account that created all the tickets. A second user account is required for those tests.</p>
+
+      <div class="check">
+        <details open>
+          <summary><span>1 · Batch save</span></summary>
+          <div class="body">
+            <ul>
+              <li>Open a fully loaded Ticket-Pool batch (Projektphase ItO), change the priority and save. All tickets of the batch are updated in SharePoint.</li>
+              <li>Apply a filter so that only part of a batch is shown, open the batch and save. All tickets of the batch are updated, including those not visible on the board.</li>
+              <li>Open a batch, change only the deadline and save. Zugewiesen an, Vertreter and BMW Ansprechpartner CLQ remain unchanged.</li>
+              <li>Open a single ticket, change a person field and save. Only this ticket is updated.</li>
+              <li>Open an ItO ticket without BatchID, change a value and save. Only this ticket is updated, and no other ticket without BatchID is affected.</li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary><span>2 · Batch deletion</span></summary>
+          <div class="body">
+            <ul>
+              <li>Delete a batch. All tickets of the batch are removed and the board refreshes.</li>
+              <li>Delete a single ticket, and a ticket without BatchID. Only that ticket is removed.</li>
+              <li>Confirm that deletion is only possible through the confirmation dialog.</li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary><span>3 · Search</span><span class="new">revised</span></summary>
+          <div class="body">
+            <ul>
+              <li>Search by ticket name.</li>
+              <li>Search by a word in the middle of a ticket name. The ticket is found.</li>
+              <li>Search by ticket number, with and without the QMT-FL- prefix.</li>
+              <li>Search by IPQ-ID.</li>
+              <li>Search by Abteilung.</li>
+              <li>Search by Projektphase.</li>
+              <li>Search by Ticketgröße. The board matches on the Ticketumfang value shown in the form.</li>
+              <li>Search with a term containing an apostrophe. The board returns results or stays empty, without an error.</li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary><span>4 · Filters</span><span class="new">revised</span></summary>
+          <div class="body">
+            <ul>
+              <li>Each filter individually: Abteilung, Unterabteilung, Priorität, Kontrollstatus, Projektphase, Dienstleister, Ticketgröße, Zugewiesen an, Vertreter, BMW Ansprechpartner CLQ, Ersteller, Erstellt ab, Erstellt bis.</li>
+              <li>Select two or more values in one multi-select filter. The board returns tickets matching any of them.</li>
+              <li>Three or four filters combined. Board content and bucket counts are consistent.</li>
+              <li>Alle löschen. All chips are removed and the board reloads unfiltered.</li>
+              <li>Remove a single chip. Only that filter is removed and the search is repeated.</li>
+              <li>Change a selection without searching, then close the panel. The selection returns to what the board is showing.</li>
+              <li>Priorität lists all values in use, including Urgent, once the data source has been refreshed.</li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary><span>5 · Meine / Alle</span></summary>
+          <div class="body">
+            <ul>
+              <li>Meine shows only the current user's tickets.</li>
+              <li>Alle shows all tickets within the user's departments.</li>
+              <li>As Externe Steuerung: Meine shows tickets assigned to the user, Alle shows the Dienstleister's tickets.</li>
+              <li>Switch Meine / Alle and confirm the bucket counts change with the board.</li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary><span>6 · Views, tabs and language</span><span class="new">revised</span></summary>
+          <div class="body">
+            <ul>
+              <li>Switch from Kanban to Liste and back. The same tickets are shown in both.</li>
+              <li>The list view shows ID, Erstellt am, Projektphase, Abteilung, Enddatum, Lieferant and Komponente.</li>
+              <li>Enddatum shows the phase end date for an ItO ticket and stays empty for OtD.</li>
+              <li>Select a row in the list view. The correct ticket opens; for a batch, the whole batch opens.</li>
+              <li>Apply a filter and a search, then switch view. Both still apply.</li>
+              <li>Navigate away from the board and back. The chosen view is still selected.</li>
+              <li>Switch to the history tab. Tickets and counts are shown, and „Mehr laden" works there too.</li>
+              <li>Switch back to the active tab. Tickets and counts are shown.</li>
+              <li>Switch DE / EN using the toggle on the board. Status labels, bucket headers and the filter panel change language.</li>
+              <li>Select Meine, switch the language and search. The board still shows only the user's tickets.</li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary><span>7 · Loading additional tickets</span><span class="new">revised</span></summary>
+          <div class="body">
+            <ul>
+              <li>Open a bucket holding more tickets than are loaded. The header shows loaded and total, for example 20/538.</li>
+              <li>Select „Mehr laden". The loaded number increases.</li>
+              <li>Repeat until all are loaded. The button is no longer shown.</li>
+              <li>Loading more in one bucket does not change the others.</li>
+              <li>Starting a new search resets the loaded quantity.</li>
+              <li>Compare a history bucket total against the item count of the SharePoint list under the same filter. They match.</li>
+              <li>In Ticket-Pool, confirm that a batch contributes one per phase to the total, not one per batch.</li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary><span>8 · Phase label</span></summary>
+          <div class="body">
+            <ul>
+              <li>Create a new ItO batch with three periods. The label shows T1-T3.</li>
+              <li>Apply a filter so only part of the batch is loaded. The label still shows T1-T3.</li>
+              <li>Open an ItO ticket without BatchID. The label shows only that ticket's phase.</li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary><span>9 · Ticket form</span><span class="new">revised</span></summary>
+          <div class="body">
+            <ul>
+              <li>Type into each of Dienstleister, Komponente, Lead-Derivat, Folge-Derivat, Abteilung and Interessenvertretung. Matching entries are found.</li>
+              <li>Interessenvertretung: the first dropdown lists all available entries.</li>
+              <li>Interessenvertretung: the dependent dropdown lists the corresponding checklist entries.</li>
+              <li>Lieferant: search for a supplier at the end of the alphabet. The supplier is found.</li>
+              <li>Lieferant: search by supplier number. The search matches from the beginning of the number.</li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary><span>10 · Errors and display</span></summary>
+          <div class="body">
+            <ul>
+              <li>Trigger a failing search. A message is shown instead of an empty board.</li>
+              <li>Bucket width on a wide screen and at 1366 pixels.</li>
+              <li>Status line above the board, for example: Meine, Aktiv, 120/1595, 3 Filter.</li>
+              <li>The filter counter matches the number of chips shown.</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section id="open">
+      <span class="eyebrow">Section 7</span>
+      <h2>Open items</h2>
+      <p>Nothing here blocks use of the board. The first three need a decision from the business side
+        before they can be built or closed.</p>
+
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr><th>Item</th><th>What is needed</th><th>Owner</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>„Projekt" column in the list view</b><br><span class="pill open">decision</span></td>
+              <td>Six columns were requested; five are live. „Projekt" does not correspond to a column
+                on the Tickets list. Confirm whether it means Ticketname, Lead-Derivat or IPQ-ID.</td>
+              <td>Business</td>
+            </tr>
+            <tr>
+              <td><b>Scope of „Meine"</b><br><span class="pill open">decision</span></td>
+              <td>Today Meine includes tickets the user created. Confirm whether that is wanted, or
+                whether Meine should mean assigned only.</td>
+              <td>Business</td>
+            </tr>
+            <tr>
+              <td><b>Ticketgröße on the card</b><br><span class="pill open">decision</span></td>
+              <td>Ticketgröße is fully filterable and searchable, but is not currently displayed on the
+                board card. Confirm whether it should be.</td>
+              <td>Business</td>
+            </tr>
+            <tr>
+              <td><b>Priorität is missing „Urgent"</b><br><span class="pill info">5 min</span></td>
+              <td>The filter reads a cached copy of the list definition. A refresh of the Tickets data
+                source in the app makes the value appear. No code change.</td>
+              <td>Development</td>
+            </tr>
+            <tr>
+              <td><b>Index confirmation</b><br><span class="pill info">list settings</span></td>
+              <td>Seven indexes were added. Priorität, Kontrollstatus, Projektphase, Abteilung and the
+                person columns used in filters should be confirmed as indexed before either list passes
+                5.000 items.</td>
+              <td>SharePoint admin</td>
+            </tr>
+            <tr>
+              <td><b>Two cosmetic details on the view toggle</b><br><span class="pill info">minor</span></td>
+              <td>The inactive segment's background and the tooltip text on both segments. The toggle
+                itself works.</td>
+              <td>Development</td>
+            </tr>
+            <tr>
+              <td><b>One form dropdown shows an internal value</b><br><span class="pill info">minor</span></td>
+              <td>The second Interessenvertretung dropdown displays an internal identifier instead of
+                the checklist name. It is not searchable and the saved value is correct, so this is
+                display only. It needs a decision on whether the name should always be German or always
+                English, since it cannot follow the language toggle.</td>
+              <td>Business + Development</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="limits">
+      <span class="eyebrow">Section 8</span>
+      <h2>Known limits</h2>
+      <p>None of these affect the board today. They are recorded so that whoever maintains the app
+        recognises them if the data grows or the process changes.</p>
+      <ul class="list">
+        <li><b>Above 5.000 tickets in a single bucket</b>, that bucket's total would be understated.
+          The largest bucket is far below this today.</li>
+        <li><b>A seventh active status</b> would not appear on the board. The list of statuses is
+          defined in more than one place and would need to be extended in all of them.</li>
+        <li><b>The Benutzer list</b> is at 387 entries. Above 500, one dropdown in the ticket form
+          would begin to truncate and would need the same treatment as the other long lists.</li>
+        <li><b>Legacy ItO batches</b> created before the batch counter existed fall back to counting the
+          tickets currently loaded, so their phase label can understate under a filter. New batches are
+          unaffected.</li>
+      </ul>
+    </section>
+
+    <section id="where">
+      <span class="eyebrow">Section 9</span>
+      <h2>Where things live</h2>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Component</th><th>Location</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr><td>Canvas App</td><td><code>UC_enb_266</code></td><td>The application itself. This solution carries the app — importing it replaces the app.</td></tr>
+            <tr><td>Service calls</td><td><code>UC_enb_266_Perf</code></td><td>Kept separate from the app so they can be changed without touching it.</td></tr>
+            <tr><td>Ticket query</td><td><code>266_flow_SearchTickets</code></td><td>Returns the tickets of each bucket under the current filter.</td></tr>
+            <tr><td>Bucket counts</td><td><code>266_flow_GetBucketCounts</code></td><td>Returns the total per bucket under the same filter.</td></tr>
+            <tr><td>Data</td><td>Site <code>QMTFremdleistung_Grossticket</code></td><td>Lists <code>Tickets</code> and <code>Tickets HIS</code>, plus the reference lists.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note">
+        <p><strong>One operational note.</strong> Re-importing the service solution deactivates both
+          service calls, and the board returns nothing until they are switched on again. If the solution
+          is ever re-imported, verify both are active before testing.</p>
+      </div>
+    </section>
+
+    <p class="footer">Prepared for the QMT Fremdleistung Grossticket handover. Field and status names
+      are given in German throughout, as they appear in the application. Figures for list sizes and
+      timings were measured in the production environment during the engagement.</p>
+  </main>
+</div>
