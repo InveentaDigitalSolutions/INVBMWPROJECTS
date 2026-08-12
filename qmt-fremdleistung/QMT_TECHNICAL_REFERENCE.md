@@ -460,16 +460,30 @@ matches every other blank-`BatchID` ticket, and the delete button would have rem
   4 records. No local cache update afterwards — it calls `Select(OS_btn_LoadTickets)` instead,
   costing ~1,3 s but guaranteeing the board matches SharePoint.
 
-  The panel holds **one** date pair but writes it to **every** row of the batch, so the per-Zeitraum
-  columns must be excluded when more than one row is being saved:
+  The panel holds **one** date pair, and the save loops the whole batch — deliberately, because
+  status, assignee and priority are batch-level. Dates are the exception: they belong to the row the
+  user opened.
 
   ```powerfx
-  StartDatum: If(CountRows(colBatchTickets) > 1, sp.StartDatum, dte_Startdate_1.SelectedDate),
-  EndDatum:   If(CountRows(colBatchTickets) > 1, sp.EndDatum,   dte_Deadline_1.SelectedDate),
+  StartDatum: If(Loop.ID = varSelectedItem.ID, dte_Startdate_1.SelectedDate, sp.StartDatum),
+  EndDatum:   If(Loop.ID = varSelectedItem.ID, dte_Deadline_1.SelectedDate, sp.EndDatum),
   ```
 
-  Without this, one save on an ITO batch collapses all four Zeiträume onto whichever phase happened
-  to be open. It is a stopgap: the real fix is a per-phase gallery (§10).
+  Read as: *for the ticket that was opened take the picker value, for every other row in the batch
+  write back what it already had.* Single tickets need no special case — `colToPatch` falls back to
+  `Table({ID: varSelectedItem.ID})`, so the condition is true and the picker value is written.
+
+  Before this, the condition was `CountRows(colBatchTickets) > 1`, which asked *"is this a batch?"*
+  and wrote the existing value back for **every** row including the opened one — protecting the
+  siblings by abandoning editing altogether. That was a stopgap after the original version wrote one
+  date pair into all four rows and collapsed a batch's Zeiträume onto whichever phase happened to be
+  open.
+
+  `StartDatum` / `EndDatum` are the edited fields for **both** ItO and OtD; `Startzeitpunkt` and
+  `Deadline` stay create-only (§7.7). For OtD that means the two pairs drift apart after the first
+  edit — nothing in the app reads `Deadline`, but a SharePoint view or report would show the
+  original date.
+
 - **`OS_btn_NewProject_21`** — delete. Same guard, same circuit breaker, same reload.
 
 ### 7.5 Toggles
