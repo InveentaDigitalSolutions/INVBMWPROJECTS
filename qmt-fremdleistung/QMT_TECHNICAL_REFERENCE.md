@@ -1,10 +1,10 @@
 # QMT Fremdleistung Grossticket — Technical Reference
 
-How the app works after the performance/completeness rebuild: the load pipeline, the two flows,
+How the app works after the performance/completeness rebuild: the load pipeline, the three flows,
 every area that was touched, the patterns to follow, and the traps that cost time.
 
-**As of** 2026-08-10 · **Source** local snapshot `~/qmt-v43` (synced from Studio 2026-08-07 17:19)
-· **Audience** whoever develops this app next.
+**As of** 2026-08-12 · **Source** coauthoring sync from Studio 2026-08-12, flow solution
+`UC_enb_266_Perf` v1.0.0.40 · **Audience** whoever develops this app next.
 
 App formulas are quoted from the snapshot. **Flow internals are quoted from the as-built record**,
 not from a local file — no flow export exists on this machine. The live flow in
@@ -20,8 +20,8 @@ not from a local file — no flow export exists on this machine. The live flow i
 | App ID | `a1725c6c-622f-4c49-aa1a-b4918c045d55` |
 | Tenant | `ce849bab-cc1c-465b-b62e-18f07c9ac198` |
 | Login | `Santiago.Ruiz@partner.bmw.de` |
-| App solution | `UC_enb_266` (unmanaged) — **carries the canvas app** |
-| Flow solution | `UC_enb_266_Perf` (unmanaged) — the two service flows only |
+| App solution | `UC_enb_266` (unmanaged) — **carries the canvas app**, and `266_flow_ChecklistPatch` |
+| Flow solution | `UC_enb_266_Perf` (unmanaged) — the two board service flows only |
 | SharePoint site | `/teams/QMTFremdleistung_Grossticket` |
 | Lists | `Tickets` (~2.086), `Tickets HIS` (~1.201), plus reference lists |
 | Connection reference | `enb266_sharedsharepointonline_ceca8` ("266_con_SharePoint") at author time |
@@ -87,7 +87,7 @@ appends a clause inside `OS_btn_LoadTickets.OnSelect` and then calls `Select(OS_
 | `colTops` | `OnVisible`, tab button | `{Status, Top}` — per-bucket page size. Drives "Mehr laden". |
 | `colActiveFilters` | `OS_btn_LoadTickets` | Filter chips: `{Id, Label, Val}`, filtered to non-blank. |
 | `colBatchTickets` | ticket-open handlers | IDs only, fetched server-side for the opened batch. |
-| `ColAllowedDepartments` | `App.OnStart` | `Benutzer.Bereich` of the current user — the Alle scope. |
+| `ColAllowedDepartments` | `App.OnStart` | `Benutzer.Bereich` of the current user — the hard scope boundary in every mode. Sourced from `varCurrentUserRecord`, so role and Bereiche can never come from different rows (§4.1). |
 | `ColCurrentLanguage` | `App.OnStart`, lang toggle | `Sprachen` rows for the active language. All UI text resolves through it. |
 | `List` | `OnVisible`, accordion | Which buckets are expanded. |
 
@@ -115,46 +115,117 @@ everything else on the screen is downstream of it.
 
 ### 4.1 Scope clause
 
-Set before any filter clause, so filters always `and` onto a scope.
+Two independent parts, **AND-ed**, set before any filter clause.
 
 ```powerfx
+Set(varIsMeine, varAssignedTo = LookUp(ColCurrentLanguage, TextID = "MyTextID").Text);
+
+// Who: ownership (Meine) or Dienstleister (Alle, external only)
+Set(varScopeOwner,
+    If(varIsMeine,
+        "(AuthorId eq {ME} or ZugewiesenAnId eq {ME} or VertreterId eq {ME} or BMWAnsprechpartnerCLQId eq {ME})",
+        If(varCurrentUserRecord.Rolle.Value = "Externe Steuerung",
+            "DienstleisterId eq " & varCurrentUserRecord.DienstleisterID.Id,
+            "")));
+
+// Where: the user's Bereiche — applied in EVERY mode
+Set(varScopeBereich,
+    If(CountRows(ColAllowedDepartments) = 0,
+        "AbteilungShort eq '__KEIN_BEREICH__'",
+        "(" & Concat(ColAllowedDepartments,
+              "AbteilungShort eq '" & Substitute(ThisRecord.Value, "'", "''") & "'", " or ") & ")"));
+
 Set(varFilterQuery,
-    If(varCurrentUserRecord.Rolle.Value = "Externe Steuerung",
-        If(varAssignedTo = LookUp(ColCurrentLanguage, TextID = "MyTextID").Text,
-            "ZugewiesenAnId eq {ME}",
-            "DienstleisterId eq " & varCurrentUserRecord.DienstleisterID.Id),
-        If(varAssignedTo = LookUp(ColCurrentLanguage, TextID = "MyTextID").Text,
-            "(AuthorId eq {ME} or ZugewiesenAnId eq {ME} or VertreterId eq {ME} or BMWAnsprechpartnerCLQId eq {ME})",
-            If(CountRows(ColAllowedDepartments) = 0, "",
-               "(" & Concat(ColAllowedDepartments,
-                     "AbteilungShort eq '" & Substitute(ThisRecord.Value, "'", "''") & "'", " or ") & ")"))))
+    If(varScopeOwner = "",   varScopeBereich,
+       varScopeBereich = "", varScopeOwner,
+       varScopeOwner & " and " & varScopeBereich));
 ```
+
+| Mode | Result |
+|---|---|
+| Meine (any role) | four ownership fields **and** the Bereich chain |
+| Alle, `Externe Steuerung` | `DienstleisterId eq <id>` **and** the Bereich chain |
+| Alle, internal | the Bereich chain alone |
+| No Bereiche resolvable | `AbteilungShort eq '__KEIN_BEREICH__'` — empty board |
 
 `{ME}` is a literal token. The app never resolves the current user's SharePoint ID — the flow
 substitutes it (§5.3). That removes a round trip and works because the flows run as the invoker.
 
-Four roles exist (`BMW Admin`, `BMW Steuerung`, `Externe Steuerung`, `User`); only
-`Externe Steuerung` branches here.
+Four roles exist (`BMW Admin`, `BMW Steuerung`, `Externe Steuerung`, `User`); the role now branches
+in **one place only**, the Alle side of `varScopeOwner`. Meine is role-independent.
 
-### 4.2 Filter clauses
+**Four rules here are load-bearing, and each was learned by getting it wrong on 2026-08-12.**
 
-Thirteen clauses, each `If(!IsBlank(...), Set(varFilterQuery, ... & " and " & ...))`.
+**Bereich is AND-ed, never an alternative.** The clause used to be either/or: Meine returned the
+ownership fields with *no* department restriction, and `Externe Steuerung` in Alle returned
+`DienstleisterId eq <id>` alone — so an external saw every ticket of their Dienstleister across all
+Bereiche. Both are now bounded.
+
+*Consequence:* a ticket outside a user's Bereiche is invisible to them even when they created it or
+it is assigned to them. That is the chosen rule; it is also the report you will get. Before changing
+the clause, check whether the ticket's `AbteilungShort` or the user's `Benutzer.Bereich` is the thing
+that is actually wrong.
+
+**The empty case fails closed.** `CountRows(ColAllowedDepartments) = 0` used to yield `""` — no
+clause, no restriction, every ticket in the tenant. Any user whose `Benutzer` row could not be
+resolved silently saw everything.
+
+**Role and Bereiche must come from the same row.** `App.OnStart` looked the `Benutzer` row up three
+times under two keys — `EntraObjectId` for the departments, `Name.Email` for the record. For a
+partner UPN the first key missed and the second hit, so the role resolved correctly while
+`ColAllowedDepartments` came back empty and the boundary vanished with nothing looking broken. It is
+now one lookup with a fallback, and `ColAllowedDepartments` derives from `varCurrentUserRecord`.
+
+**Do not add a guard that skips the chain.** A "skip the scope chain when a Bereich is picked in the
+filter" optimisation existed for a few hours to save 257 URI characters. It fired when it should not
+have, and `varFilterQuery` came back as `DienstleisterId eq 1` with the boundary silently gone. If
+URI length becomes a problem again, shorten the query template in the flow (§9.10) — never the scope.
+
+**Open business decisions.** Meine counts four of the five person fields: `BMWSteuerung` is excluded,
+`Author` is included. Neither was explicitly decided. Does Meine mean *my work* or *anything I am
+named on*?
+
+### 4.2 Filter clauses### 4.2 Filter clauses
+
+Seventeen clauses, each `If(!IsBlank(...), Set(varFilterQuery, ... & " and " & ...))`.
+
+Controls were renamed on 2026-08-12 to `Filter_<type>_<Feld>`, so the formula now reads as what it
+filters. The old `OS_cmb_Filter_<n>` names are gone.
 
 | Control | Clause emitted | Sel. |
 |---|---|---|
-| `OS_cmb_Filter_14` | `DienstleisterId eq <id>` | multi |
-| `OS_cmb_Filter_19` | `startswith(AbteilungShort,'<code>')` | multi |
-| `OS_cmb_Filter_20` | `Abteilung eq '<name>'` | multi |
+| `Filter_cmb_Dienstleister` | `DienstleisterId eq <id>` | multi |
+| `Filter_cmb_Bereich` | `startswith(AbteilungShort,'<code>')` | multi |
+| `Filter_cmb_Abteilung` | `Abteilung eq '<name>'` | multi |
 | search box → `varSearchText` | `substringof(...,TicketName) or substringof(...,IPQUmfangs_x002d_ID) or substringof(...,Abteilung) or startswith(ProjektPhase,...)` plus `ID eq <n>` when numeric after stripping `QMT-FL-`, plus `Ticketgroe_x00df_eId eq <id>` for matching Ticketgröße rows | — |
-| `OS_cmb_Filter_18` | `Prioritaet eq '<value>'` | multi |
-| `OS_rdo_ProjectStatus_4` | `KontrollStatus eq '<value>'` | single |
-| `OS_rdo_ProjectStatus_2` | `ProjektPhase eq '<value>'` | single |
-| `OS_cmb_Filter_4` | `Ticketgroe_x00df_eId eq <id>` via `Filter(Ticketgröße, Ticketumfang = …)` | single |
-| `OS_cmb_Filter_17` | `ZugewiesenAn/EMail eq '<mail>'` | multi |
-| `OS_cmb_BMW_QMT_1` | `Vertreter/EMail eq '<mail>'` | multi |
-| `OS_cmb_BMW_CLQ_1` | `BMWAnsprechpartnerCLQ/EMail eq '<mail>'` | multi |
-| `OS_cmb_Filter_15` | `Author/EMail eq '<mail>'` | multi |
-| `OS_dte_DP1_2` / `OS_dte_DP2_2` | `Created ge datetime'…T00:00:00Z'` / `Created le datetime'…T23:59:59Z'` | date |
+| `Filter_cmb_Prioritaet` | `Prioritaet eq '<value>'` | multi |
+| `Filter_rdo_KontrollStatus` | `KontrollStatus eq '<value>'` | single |
+| `Filter_rdo_ProjektPhase` | `ProjektPhase eq '<value>'` | single |
+| `Filter_cmb_Ticketgroeße` | `Ticketgroe_x00df_eId eq <id>` via `Filter(Ticketgröße, Ticketumfang = …)` | single |
+| `Filter_cmb_ZugewiesenAn` | `ZugewiesenAn/EMail eq '<mail>'` | multi |
+| `Filter_cmb_BMWQMT` | `Vertreter/EMail eq '<mail>'` | multi |
+| `Filter_cmb_BMWCLQ` | `BMWAnsprechpartnerCLQ/EMail eq '<mail>'` | multi |
+| `Filter_cmb_ErstelltVon` | `Author/EMail eq '<mail>'` | multi |
+| `Filter_dte_ErstelltAmVon` / `…Bis` | `Created ge …` / `Created lt …` | date |
+| `Filter_dte_StartdatumVon` / `…Bis` | `StartDatum ge …` / `StartDatum lt …` | date |
+| `Filter_dte_EnddatumVon` / `…Bis` | `EndDatum ge …` / `EndDatum lt …` | date |
+
+**All six date clauses use the same form**, and it is not optional:
+
+```powerfx
+& "Created ge datetime'" & Text(<picker>.SelectedDate, DateTimeFormat.UTC) & "'"
+& "Created lt datetime'" & Text(DateAdd(<picker>.SelectedDate, 1, TimeUnit.Days), DateTimeFormat.UTC) & "'"
+```
+
+`Created`, `StartDatum` and `EndDatum` are stored UTC. The original code formatted the *local* date
+and appended `T00:00:00Z` / `T23:59:59Z`, which asserts local midnight is UTC midnight — two hours
+off in summer, one in winter. "bis 11.08." then included tickets created on 12.08. before 02:00 and
+"ab 11.08." dropped those created before 02:00 on the 11th. Wrong rows, never an error.
+`DateTimeFormat.UTC` converts local→UTC itself; the half-open `lt <Tag+1>` replaces `le 23:59:59`
+and closes the final-second gap.
+
+Filter on `StartDatum` / `EndDatum` (per Zeitraum), never on `Startzeitpunkt` / `Deadline`
+(per batch) — §7.7.
 
 Person columns filter on `/EMail` and require the column to be in the flow's `$expand`. This works —
 an earlier note claiming it could not be done was wrong; the real cause was dropped flow arguments (§9.1).
@@ -197,9 +268,10 @@ A flow failure yields an empty board **plus** a message, rather than an empty bo
 
 ## 5. Flow contracts
 
-Both flows are PowerApps V2-triggered, in `UC_enb_266_Perf`, running `runtimeSource: invoker` —
-they execute as the signed-in app user, so SharePoint permissions apply per user and no elevated
-identity exists.
+Three flows. The two board flows are PowerApps V2-triggered, in `UC_enb_266_Perf`, running
+`runtimeSource: invoker` — they execute as the signed-in app user, so SharePoint permissions apply
+per user and no elevated identity exists. The third, `266_flow_ChecklistPatch`, sits in
+`UC_enb_266` — see §5.4.
 
 ### 5.1 `266_flow_SearchTickets`
 
@@ -213,13 +285,35 @@ identity exists.
 
 Response body key: **`Result`** (capital R). Return schema `![Result:s]`.
 
-The flow loops the statuses in `text_4` (defaulting to the active or history set from `text`),
-issues one REST call per status with `$filter=<FilterQuery> and TicketStatus eq '<status>'`, and
-accumulates with `union(...)` into one array. Per-status paging is what keeps every Kanban column
-populated — a single global `$top` would starve the later buckets.
+The flow derives its status list from `text_4` (defaulting to the active or history set from
+`text`) and issues **six parallel** REST calls, one per status, each with
+`$filter=<FilterQuery> and TicketStatus eq '<status>'`. `Compose_Union` merges them into one array.
+Per-status querying is what keeps every Kanban column populated — a single global `$top` would
+starve the later buckets.
 
-`$select` includes the plain numeric person IDs (`AuthorId`, `ZugewiesenAnId`, `VertreterId`,
-`BMWAnsprechpartnerCLQId`, `BMWSteuerungId`) alongside the `$expand`ed person and lookup objects.
+Three things about the query are load-bearing and were each paid for in debugging time (§9.10–9.12):
+
+- **`$top=2000` in the URI, trimmed to the requested count in `Compose_Union`** via
+  `take(arr, N)`. Querying with the app's `$top=20` directly returns an *empty first page* whenever
+  the filter forces a scan — SharePoint answers `200 OK` with `[]` and a `__next` link the flow
+  never follows. The app still receives its 20 per bucket; the wide window only exists between the
+  flow and SharePoint.
+- **`$select=*` plus the expanded target fields**, not a list of ~23 scalar column names. The
+  connector's `uri` parameter tops out near 1024 characters and the long form blew past it.
+  `$select` cannot be dropped altogether: `$expand` requires every expanded field to be named in it.
+- **Every fan-in `runAfter` lists all four terminal statuses.** `Compose_Union` accepting only
+  `Succeeded, Failed` meant a `TimedOut` call stranded the whole run with no response at all.
+
+On any non-success the response is a diagnostic string instead of the ticket array:
+
+```
+ERROR st=S/S/T/S/S/S U=S urilen=884 filterlen=140 MSG=<SharePoint's message>
+```
+
+`st` is one letter per call (**S**ucceeded / **F**ailed / **T**imedOut / **S**kipped / **N**one),
+`U` the union's own status, then the composed URI length, the filter length, and SharePoint's
+message. The app surfaces it through the existing `StartsWith(varSearchRaw, "ERROR")` path. Keep
+this instrumentation — three plausible-but-wrong hypotheses died on its numbers.
 
 ### 5.2 `266_flow_GetBucketCounts`
 
@@ -244,6 +338,20 @@ Both flows begin with `HTTP_CurrentUser` (`GET _api/web/currentuser?$select=Id`)
 `Compose_MyId` → `Compose_ScopeSuffix`, which does
 `replace(FilterQuery, '{ME}', outputs('Compose_MyId'))`. Because the flows run as the invoker,
 `currentuser` is the app user. The app writes the literal `{ME}` and never learns the ID.
+
+### 5.4 `266_flow_ChecklistPatch`
+
+| Schema name | Title | Meaning |
+|---|---|---|
+| `text` | CLJSON | `JSON(colItOChecklist, JSONFormat.IncludeBinaryData)` |
+| `text_1` | SPID | `JSON(colCreatedTicketIDs, …)` |
+
+Response body key: **`status`**; the app checks `varFlowResult.status = "Success"`.
+
+Lives in `UC_enb_266`, not in the perf solution, and is **deliberately switched off in dev** — so
+creating an ItO ticket there raises an error after the tickets themselves are written. Ticket
+creation happens *before* the call (§7.7), so a Zeitraum test in dev is still valid; only the
+Checkliste rows are missing.
 
 ---
 
@@ -351,6 +459,17 @@ matches every other blank-`BatchID` ticket, and the delete button would have rem
   from `sp: LookUp(Tickets, ID = Loop.ID)` rather than from the client cache. Circuit breaker above
   4 records. No local cache update afterwards — it calls `Select(OS_btn_LoadTickets)` instead,
   costing ~1,3 s but guaranteeing the board matches SharePoint.
+
+  The panel holds **one** date pair but writes it to **every** row of the batch, so the per-Zeitraum
+  columns must be excluded when more than one row is being saved:
+
+  ```powerfx
+  StartDatum: If(CountRows(colBatchTickets) > 1, sp.StartDatum, dte_Startdate_1.SelectedDate),
+  EndDatum:   If(CountRows(colBatchTickets) > 1, sp.EndDatum,   dte_Deadline_1.SelectedDate),
+  ```
+
+  Without this, one save on an ITO batch collapses all four Zeiträume onto whichever phase happened
+  to be open. It is a stopgap: the real fix is a per-phase gallery (§10).
 - **`OS_btn_NewProject_21`** — delete. Same guard, same circuit breaker, same reload.
 
 ### 7.5 Toggles
@@ -372,6 +491,100 @@ matches every other blank-`BatchID` ticket, and the delete button would have rem
 
 **Studio regenerates `SearchFields` whenever a combobox `Items` formula is edited**, and picks a
 system column when it cannot infer one. Re-check these six after any `Items` change.
+
+### 7.7 Ticket creation and the ItO Zeitraum split
+
+`SS_tmr_Fade_1.OnTimerEnd` on **SuccesScreen** is the whole create path. The legacy version — one
+`Patch` plus a CustomID-chunked reload — is commented out above it.
+
+Order matters and is load-bearing:
+
+```
+Clear(colCreatedTicketIDs); Clear(colCreatedTickets); Set(varBatchID, GUID());
+  ↓  rebuild colTicketPeriods from the T-pickers          ← must come first
+Set(varCreateCount, CountRows(colTicketPeriods));
+Set(varStartCustomID, …)                                   ← next CustomID fetched ONCE
+ForAll(Sequence(varCreateCount), Patch(Tickets, …))        ← one row per Zeitraum
+266_flow_ChecklistPatch (ItO only)
+Collect(col_AllTicketLoad, colCreatedTickets)              ← append, do not reload
+```
+
+The rebuild has to sit **before** `Set(varCreateCount, …)`. Counting first and rebuilding after
+means the loop indexes a different collection than it counted: too few rows and tickets are created
+with blank `TP` (blank `StartDatum`/`EndDatum`/`Phase`), too many and the last Zeitraum is silently
+dropped, and an empty stale collection creates nothing at all.
+
+**Why the rebuild exists.** `colTicketPeriods` is otherwise built only inside
+`FS_dte_Startdate.OnChange` / `FS_dte_EndDate.OnChange`, and none of the eight T-pickers has an
+`OnChange` — so a hand-moved boundary would never reach SharePoint. Those handlers also read the
+pickers in the same pass that just set the variables the pickers derive from, so they can capture
+stale values. Rebuilding at create time fixes both.
+
+**The split** (both Gesamtzeitraum handlers, byte-identical — keep them that way):
+
+| `varMonthDiff` | Zeiträume |
+|---|---|
+| < 3 | 1 |
+| 3 – 5 | 2 |
+| 6 – 9 | 3 |
+| ≥ 10 | 4 |
+
+`varMonthDiff` is **completed** months:
+
+```powerfx
+DateDiff(start, end, TimeUnit.Months) - If(Day(end) < Day(start), 1, 0)
+```
+
+Raw `DateDiff(…, Months)` is `(Jahr₂−Jahr₁)*12 + (Monat₂−Monat₁)` and ignores the day entirely, so
+15.08 → 01.11 came back as 3 and a range under three months was split in two.
+
+Every period is `RoundDown(varTotalDays / varNumPeriods)` days long **except the last**, which is
+pinned to the Gesamtzeitraum end so no day is invented or lost. Periods are contiguous:
+`Tn+1.Start = Tn.End + 1 Tag`.
+
+**Editing.** A boundary is one date wearing two hats, so only one side is typeable: the **End**
+pickers are editable (except the last period's, which is the Gesamtende), and every **Start**
+derives from the preceding End through `DefaultDate`. There is no cascade code — the derivation is
+the cascade. `OnChange` on the three editable Ends only clamps against the neighbours, using
+`Set` + `Reset` because `SelectedDate` cannot be assigned. Row visibility and the `DefaultDate`
+guards all key off `varNumPeriods`, never `varMonthDiff`; mixing the two produced phantom T3/T4 rows
+with an inverted range.
+
+Both Gesamtzeitraum handlers reset all eight pickers unconditionally — a `DatePicker` stops
+following `DefaultDate` once touched, so without that a manual boundary survives into a split it no
+longer belongs to. `OS_btn_Filter_1_Clear_32` offers the same reset on demand.
+
+### 7.8 Supplier search — prefix, delegated
+
+`FS_cmb_Lieferant.Items` filters the `Lieferanten` data source directly:
+
+```powerfx
+If(
+    Len(Self.SearchText) < 2,
+    FirstN(Lieferanten, 0),
+    Filter(
+        Lieferanten,
+        StartsWith(Name, Self.SearchText) || StartsWith(Nummer, Self.SearchText)
+    )
+)
+```
+
+`Filter` + `StartsWith` are delegable, so SharePoint does the matching and the search covers the
+**whole list at any size** — the 2.000 limit caps rows returned, not rows searched. `Name` and
+`Nummer` are indexed, and `StartsWith` is index-assisted (`BeginsWith` in CAML), so this keeps
+working past the 5.000-item list view threshold.
+
+**A caching version existed briefly on 2026-08-11 and was removed on 2026-08-12.** It held
+`colLieferanten` as a session cache and searched it in memory with `q in Name || q in Nummer`, which
+bought mid-string matching. `Lieferanten` had already reached 2.000 rows, so `ClearCollect` was
+silently truncating to the oldest 2.000 by ID: newer suppliers could neither be selected nor created
+— the "Neuer Eintrag" duplicate check queries the data source, so it correctly refused them — and
+nothing on screen explained the dead end.
+
+**Do not reintroduce mid-string search over a cache.** The only forms that stay complete are
+server-side `substringof` in a flow, which itself dies at the 5.000-item threshold because contains
+cannot use an index, or a normalised indexed `SearchKey` column queried with `StartsWith` per token.
+The business was asked and confirmed prefix search is sufficient.
 
 ---
 
@@ -502,13 +715,52 @@ filter was tested and works; its residual failure mode is a 1–2 h sliver at ea
 would only surface for a ticket created between 00:00 and 02:00 local. If it ever does, the fix is
 `Text(date, DateTimeFormat.UTC)` plus `lt` next-midnight.
 
+### 9.9 A flow that answers with nothing at all
+
+`runAfter` on a fan-in action must list **all four** terminal statuses —
+`Succeeded, Failed, Skipped, TimedOut`. `Compose_Union` accepted only the first two, so a single
+`TimedOut` call skipped it, skipped `Respond`, and Power Apps received
+`502 BadGateway / NoResponse` — a raw gateway error with no message, from a flow that was working
+correctly for five of six calls. This is what made combined filters look like a network problem.
+
+### 9.10 The connector's `uri` parameter ends at ~1024 characters
+
+Beyond it the SharePoint connector returns `400 "Uri parameter missing"` — from
+`sharepointonline-*.azconn-*`, header `x-ms-plex-failed: 400` — while the run history plainly shows
+the Uri. Measured: **884 and 930 succeeded, 1124 failed.**
+
+`GetBucketCounts` is immune (its URI is `$filter` + `$top=5000&$select=CustomID`), which is exactly
+why bucket counts stayed correct while the board went empty — the single most misleading symptom in
+this app's history.
+
+Levers, in order of value: `$select=*` instead of naming ~23 scalar columns (−277), the Bereich
+scope chain when a Bereich is selected (−257), the duplicated `ProjektPhase` clause (−30).
+
+### 9.11 An empty first page is a valid SharePoint answer
+
+With `$orderby` and a filter that cannot be served from an index, SharePoint scans in list order and
+may return `200 OK` with `[]` plus a `__next` link. A client that reads `d.results` and stops sees
+nothing. The flow queries `$top=2000` and trims with `take(arr, N)` per status instead, so the app
+still gets its 20 per bucket. `$top=20` sent straight to SharePoint is what produced "counts say 53,
+board shows 0".
+
+### 9.12 `$expand` requires `$select` to name the target fields
+
+Dropping `$select` to shorten the URI fails with *"The query to field 'Dienstleister' is not valid.
+The `$select` query string must specify the target fields and the `$expand` query string must
+contains Dienstleister."* `$select=*` plus the nested subfields is the short form that works.
+
 ---
 
 ## 10. Open items
 
 | Item | State | Needs |
 |---|---|---|
+| **Three board states** | Not built | Loading / error+retry / no-results+reset. Today all three render as an empty board — the ambiguity that made §9.9–9.12 take a full day to isolate. `varLoad` and the `Load` container already exist; add `varLoadError` and two containers, and reuse `OS_btn_FIlter_ClearAll_2` for the reset |
+| **Per-phase gallery in the detail panel** | Stopgap only | §7.4's guard prevents the data loss; the panel still cannot edit a phase's own dates. Widen `colBatchTickets` (it maps IDs only; the flow already returns `Phase`, `StartDatum`, `EndDatum`), then an editable gallery, per-row save, and gap/overlap validation against the frozen `Startzeitpunkt`/`Deadline` |
 | `Ticketgröße` lookup unmapped | `{Value: ""}` in the mapping | Its target field in SharePoint list settings, then `$expand` + mapping |
+| `StartDatum` / `EndDatum` not indexed | 4 new filters run on them | SharePoint list settings |
+| `ResetTextID` missing in `Sprachen` | Button renders unlabelled | One row, `de` + `en` |
 | "Projekt" column in the list view | Not built | Business decision: Ticketname, Lead-Derivat or IPQ-ID. If IPQ-ID, one flow change |
 | Does "Meine" include Ersteller? | Currently yes | Business decision |
 | Priorität missing "Urgent" | Cached schema | Studio → Data → Tickets → Refresh. No formula change |
@@ -553,3 +805,7 @@ mapping more fields is not.** Reducing rows below 20/bucket was rejected — com
 | 2026-08-05 | Row limit → 2000; 3 delegation fixes; 7 SharePoint indexes; apostrophe escaping (10 clauses); search widened; flow error surfacing; `DelayOutput`; filter badge; counts query one list not two; Meine/Alle revert-on-abandon; **P2.1 batch save server-side** |
 | 2026-08-06 | Batch delete + `!IsBlank(BatchID)` guard; E2 dead `ClearCollect(List,…)` removed; history-tab regression fixed (`colTops` rebuilt in the tab); `Result` key case restored; designer cross-scope errors fixed |
 | 2026-08-07 | Bucket counts → row counts (v1.0.0.30); Ticketgröße filter/search → `Ticketumfang`; language toggle on the board; view toggle → native control; 6 FormScreen `SearchFields` fixed |
+| 2026-08-11 | ItO Zeitraum split reworked: bands 1/2/3/4, `varMonthDiff` as completed months, editable End boundaries with derived Starts, clamps, `colTicketPeriods` rebuilt at create time (§7.7). Batch-save guard on `StartDatum`/`EndDatum` (§7.4). Lieferanten contains-search on a session cache (§7.8). **QMT-4 resolved after ten flow versions** — three independent faults (§9.9–9.11) behind one symptom |
+| 2026-08-12 | `Created` filter corrected to `DateTimeFormat.UTC` + half-open range; four new `StartDatum`/`EndDatum` filters in the same form; all filter controls renamed to `Filter_<type>_<Feld>`; duplicate `ProjektPhase` clause removed; chip removal consolidated into one button; Bereich scope chain skipped when a Bereich is selected |
+| 2026-08-12 | **Scope clause reworked (§4.1)** — Bereich is now AND-ed onto ownership/Dienstleister in every mode instead of being an alternative to it; the empty-Bereiche case fails closed; the URI-saving guard that skipped the chain was removed after it silently dropped the boundary.  consolidated to one  lookup with a fallback, so role and Bereiche always come from the same row |
+| 2026-08-12 | Supplier search reverted to delegated `StartsWith` (§7.8) — the cache was truncating at 2.000 rows; business confirmed prefix search is sufficient. Board states: `varLoadError` captured in `OS_btn_LoadTickets`, surfaced in the header label in place of the count. Clear-all chip beside the filter chips; `OS_btn_FIlter_ClearAll_2` no longer races its own reload |
