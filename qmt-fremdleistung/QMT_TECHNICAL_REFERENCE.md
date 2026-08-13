@@ -703,6 +703,28 @@ Once a flow is added to the canvas app, Power Apps rewrites its connection to
 That same error at runtime usually means the app's cached connection-reference set is stale, not
 that the flow is broken — remove and re-add the flow in Studio.
 
+**A second shape of the same trap, 2026-08-13.** `266_flow_GetBucketCounts` ended up declaring
+**two** connection references to the same connector — `shared_sharepointonline-1` pointing at
+`enb266_266_con_SharePointHTTP` (8 actions) and `shared_sharepointonline-2` pointing at the older
+`enb266_sharedsharepointonline_ceca8` (**1 action**, `HTTP_Count_5`, the Kontrolle bucket). The app
+passes only the connections it knows about in the APIM header, so the orphaned reference could not
+be resolved and every run reported
+
+```
+Failed to parse invoker connections from trigger 'manual' outputs.
+Could not find any valid connection for connection reference name 'shared_sharepointonline' in APIM header.
+```
+
+while otherwise working, because the eight correctly-bound actions still ran. Fixed in v1.0.0.41 by
+repointing that one action and deleting the orphaned reference.
+
+**How to check:** export the solution and confirm that every action's `host.connectionName` appears
+in that flow's `connectionReferences`. A flow should declare exactly one reference per connector.
+Note the two flows use different key styles — `shared_sharepointonline_1` (underscore) on
+SearchTickets, `shared_sharepointonline-1` (hyphen) on GetBucketCounts. Harmless while each is
+internally consistent; mismatched keys *within* one flow are the first thing to check if this error
+returns.
+
 Note: `new_sharedsharepointonline_7c1e7` is actually **485_con_SharePoint**, belonging to the R2Q
 project. Harmless under invoker, but it is a cross-project dependency that travels on export.
 
