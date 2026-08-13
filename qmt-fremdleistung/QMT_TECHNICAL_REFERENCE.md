@@ -720,10 +720,17 @@ repointing that one action and deleting the orphaned reference.
 
 **How to check:** export the solution and confirm that every action's `host.connectionName` appears
 in that flow's `connectionReferences`. A flow should declare exactly one reference per connector.
-Note the two flows use different key styles — `shared_sharepointonline_1` (underscore) on
-SearchTickets, `shared_sharepointonline-1` (hyphen) on GetBucketCounts. Harmless while each is
-internally consistent; mismatched keys *within* one flow are the first thing to check if this error
-returns.
+
+**The key name itself must match what the app sends, 2026-08-13.** After the orphan was removed,
+`GetBucketCounts` still failed: its surviving key was `shared_sharepointonline-1` (**hyphen**) while
+the app's APIM header carries `shared_sharepointonline_1` (**underscore**), which SearchTickets
+already used. The name is matched literally — a hyphen where the app expects an underscore produces
+the same "could not find any valid connection" failure as a missing reference. Renamed in
+v1.0.0.42, after which both flows run clean.
+
+> An earlier revision of this section called the hyphen/underscore difference between the two flows
+> harmless as long as each flow was internally consistent. That was wrong: internal consistency is
+> not enough, the key has to match the app's header. Both flows now use the underscore form.
 
 Note: `new_sharedsharepointonline_7c1e7` is actually **485_con_SharePoint**, belonging to the R2Q
 project. Harmless under invoker, but it is a cross-project dependency that travels on export.
@@ -787,6 +794,39 @@ The `$select` query string must specify the target fields and the `$expand` quer
 contains Dienstleister."* `$select=*` plus the nested subfields is the short form that works.
 
 ---
+
+### 9.13 A stale cached flow schema returns blank, not an error
+
+**2026-08-13.** After `UC_enb_266_Perf` was re-imported several times (v1.0.0.38 → v42),
+`266_flow_SearchTickets` ran perfectly — its `Respond to a Power App or flow` action returned all
+seven tickets — but `varSearchRaw` in the app was **blank**. Not `[]`, not an error: blank. The
+board showed the correct bucket counts (`Meine · Aktiv · 0/7`) beside an empty list, because
+`GetBucketCounts` was bound correctly and `SearchTickets` was not.
+
+The cause is that the app caches the flow's connector schema when the flow is added, and solution
+imports can leave that cache out of step with the live definition. The app then reads a response
+property that the payload no longer fills, and Power Fx yields blank rather than raising.
+
+**Fix:** remove the flow from the app's data sources in Studio and add it back. No formula change is
+needed — all three `.Run()` call sites kept `.Result`.
+
+**How to tell this apart from a genuinely empty result.** Read `varSearchRaw` directly in Studio's
+Variables pane; do not infer it from the board:
+
+| `varSearchRaw` | Meaning |
+|---|---|
+| blank | the app never bound the response — stale cached schema, re-add the flow |
+| `[]` | the flow ran and genuinely matched nothing — look at `varFilterQuery` |
+| `ERROR st=…` | the flow's own diagnostic fired |
+| a JSON array | the app did receive the data — the fault is in the `ClearCollect(col_AllTicketLoad, …)` mapping |
+
+Compare the flow's response schema against the `.Run(…).Result` casing at the same time: the
+response key is case-sensitive (§9.2) and produces exactly the same blank-not-error symptom.
+
+**`266_flow_SearchTickets` has three call sites in OverviewScreen**, all sharing one cached schema —
+the board load (`varSearchRaw`) and two ItO batch-popup paths (`varBatchRaw`). A schema fault breaks
+all three at once, and re-adding the flow fixes all three at once. Test the batch popup as well as
+the board.
 
 ## 10. Open items
 
