@@ -3,8 +3,11 @@
 How the app works after the performance/completeness rebuild: the load pipeline, the three flows,
 every area that was touched, the patterns to follow, and the traps that cost time.
 
-**As of** 2026-08-12 · **Source** coauthoring sync from Studio 2026-08-12, flow solution
+**As of** 2026-08-19 · **Source** coauthoring sync from Studio 2026-08-19, flow solution
 `UC_enb_266_Perf` v1.0.0.40 · **Audience** whoever develops this app next.
+
+The batch ordering in §7.9 was handed over on 2026-08-19 after the last sync that could be taken;
+it is recorded as specified, not as verified. Re-sync and confirm.
 
 App formulas are quoted from the snapshot. **Flow internals are quoted from the as-built record**,
 not from a local file — no flow export exists on this machine. The live flow in
@@ -602,6 +605,70 @@ The business was asked and confirmed prefix search is sufficient.
 
 ---
 
+### 7.9 Ticket ordering — batches run T1 → T4
+
+Neither ticket gallery sorts. Both inherit the order the flow returns, set by `$orderby` in
+`text_3` (§4.3), which is `"Created desc"` — newest ticket first, confirmed correct by the
+customer.
+
+That ordering is wrong *within* a batch. A batch's tickets are created in sequence, so newest-first
+shows them as T4, T3, T2, T1 — the reverse of how anyone reads a phase sequence.
+
+The **`Phase`** column carries `"T1"`–`"T4"` and is already mapped into `col_AllTicketLoad`
+(§6), as is `BatchID`. A commented-out remnant of this idea sits in the gallery's own `Items`:
+
+```powerfx
+// &&  (Phase.Value = "T1" || IsBlank(Phase.Value)) )
+```
+
+A server-side secondary key — `"Created desc,Phase asc"` — only engages if a batch's tickets share
+an identical `Created` value. They are created sequentially, so generally they do not, and the
+secondary key never fires. The reliable form is a client-side sort that keys each batch on its
+newest ticket, so batches keep their Created-desc position while their members run in phase order:
+
+```powerfx
+=With(
+    {
+        _rows: Filter(
+            col_AllTicketLoad,
+            TicketStatus.Value = ThisItem.Value &&
+            (
+                ThisItem.Value in ["Ticket-Pool", "In Vorbereitung"]
+                || !(ThisItem.Value in ["Ticket-Pool", "In Vorbereitung"])
+            )
+        )
+    },
+    SortByColumns(
+        AddColumns(
+            _rows As r,
+            _BatchKey,
+            If(
+                IsBlank(r.BatchID),
+                r.Created,
+                Max(Filter(col_AllTicketLoad, BatchID = r.BatchID), Created)
+            ),
+            _PhaseKey,
+            Coalesce(r.Phase.Value, "")
+        ),
+        "_BatchKey", SortOrder.Descending,
+        "_PhaseKey", SortOrder.Ascending
+    )
+)
+```
+
+`"T1"`–`"T4"` sort correctly as text, so no mapping table is needed. A ticket with no `BatchID` is
+its own batch, keyed on its own `Created`, and is unaffected.
+
+**It goes in two places** — `con_gal_TicketPool_Items_2` (Kanban, inside `Gallery6_1`) and
+`Gallery10` (list view, inside `Gallery7`). Both are inner galleries nested in an outer gallery
+that iterates the status buckets, which is why `ThisItem.Value` resolves to the bucket status in
+each. Change one and the two views disagree — the same duplication warned about in §7.2.
+
+Two limits worth knowing. The flow returns 20 rows per bucket ordered by `Created desc`, so **a
+batch straddling that boundary cannot be repaired client-side** — the missing member was never
+fetched. And the nested `Filter` is O(n²); harmless at 20–100 rows per bucket, but it is the first
+thing to revisit if the page size grows.
+
 ## 8. How to make common changes
 
 ### 8.1 Add a filter
@@ -885,3 +952,4 @@ mapping more fields is not.** Reducing rows below 20/bucket was rejected — com
 | 2026-08-12 | `Created` filter corrected to `DateTimeFormat.UTC` + half-open range; four new `StartDatum`/`EndDatum` filters in the same form; all filter controls renamed to `Filter_<type>_<Feld>`; duplicate `ProjektPhase` clause removed; chip removal consolidated into one button; Bereich scope chain skipped when a Bereich is selected |
 | 2026-08-12 | **Scope clause reworked (§4.1)** — Bereich is now AND-ed onto ownership/Dienstleister in every mode instead of being an alternative to it; the empty-Bereiche case fails closed; the URI-saving guard that skipped the chain was removed after it silently dropped the boundary.  consolidated to one  lookup with a fallback, so role and Bereiche always come from the same row |
 | 2026-08-12 | Supplier search reverted to delegated `StartsWith` (§7.8) — the cache was truncating at 2.000 rows; business confirmed prefix search is sufficient. Board states: `varLoadError` captured in `OS_btn_LoadTickets`, surfaced in the header label in place of the count. Clear-all chip beside the filter chips; `OS_btn_FIlter_ClearAll_2` no longer races its own reload |
+| 2026-08-19 | Batch tickets ordered T1 → T4 within the Created-desc batch order (§7.9), on both the Kanban and list galleries. Customer confirmed the overall Created-desc ordering is correct and wanted only the intra-batch sequence changed |
