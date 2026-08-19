@@ -6,9 +6,11 @@ note to become write-once, and what is still open.
 **As of** 2026-08-19 · **Source** coauthoring sync from Studio 2026-08-19 10:02 · **Audience**
 whoever develops this app next.
 
-Two changes handed over on 2026-08-19 after that sync — the blank-Regelspediteur variant of
-`_regel` (§6.3) and the QMT-style ordering work — are **recorded as specified, not as verified**.
-Re-sync and confirm before relying on them.
+Three changes landed after the last sync that could be taken, so they are documented from the
+formula rather than from a snapshot: the blank-Regelspediteur `_regel` (§6.3), the Subkategorie
+suppression (§6.4), and the Regresspotential write-back (§7). `_regel` and `_sub` were **confirmed
+applied** — the live formula was read back from Studio on 2026-08-19. Re-sync when Studio is next
+open and replace this note with a snapshot date.
 
 ---
 
@@ -208,8 +210,8 @@ _regel: If(
 )
 ```
 
-**Superseded again on 2026-08-19, not yet verified in a sync** — a blank Regelspediteur should
-print nothing at all. `_regel` carries the whole line including its `Char(13)`, so the line
+**Superseded again on 2026-08-19, and this is the live form** — a blank Regelspediteur prints
+nothing at all. `_regel` carries the whole line including its `Char(13)`, so the line
 disappears rather than leaving empty brackets:
 
 ```powerfx
@@ -228,6 +230,48 @@ gate and `• Regelspediteur` from the missing-fields list.
 **This softens a customer requirement.** CR 7b was explicit about the Pflichtfeld. The form still
 requires a Regelspediteur on its own edit path; only the note stopped enforcing it. Worth
 confirming rather than leaving implicit.
+
+---
+
+### 6.4 `_sub` — suppressing an absent Subkategorie
+
+Customer feedback, 2026-08-19:
+
+> *"wenn keine Subkategorie vorhanden, dann den Text bitte auch nicht anzeigen"*
+
+**The text is data, not an app string.** There is no "Keine Subkategorie" literal anywhere in the
+app. `NOTIZ_txt_Subkategorie_param` only normalises what the record holds —
+
+```powerfx
+Substitute(Trim(Upper( … varLKWItemSelected.Subkategroie.Value … )), " ", "")
+```
+
+— so `Keine Subkategorie vorhanden` is a **choice value in the SharePoint `Subkategroie` column**
+and arrives in the note as `KEINESUBKATEGORIEVORHANDEN`. The column name carries that typo in
+SharePoint; do not correct it in the app.
+
+The test is therefore on the value, not on blankness, and it swallows the `#` with it — otherwise
+the heading is left with a dangling hash:
+
+```powerfx
+_sub: If(
+    IsBlank(NOTIZ_txt_Subkategorie_res.Text) ||
+    StartsWith(NOTIZ_txt_Subkategorie_res.Text, "KEINESUBKATEGORIE"),
+    "",
+    "#" & NOTIZ_txt_Subkategorie_res.Text
+)
+```
+
+`StartsWith` rather than `=` because the exact choice value could not be read from here; a prefix
+survives a trailing full stop or a reworded variant, and `StartsWith` is case-insensitive so it
+also survives a change in the normalisation upstream. If someone reads the real value, tightening
+this to an exact comparison is safer against a genuine subcategory beginning with those letters.
+
+**The gate still requires a Subkategorie.** `IsBlank(NOTIZ_txt_Subkategorie_res.Text)` is untouched,
+which is right if the column is always filled — including with the "keine" value. If genuinely
+empty records exist, the note cannot be generated at all, and the line plus its `• Subkategorie`
+bullet should come out of the gate exactly as the Regelspediteur's did (§6.3). Same question,
+different field; not yet put to the customer.
 
 ---
 
@@ -394,3 +438,4 @@ could be built with an empty column to get off the customer's critical path.
 | 2026-08-14 | Planstand wording, `Ausplanung` removed from all three options plus a missing `I` (CR 8). Currency labels (CR 7a). Regresspotential radio (CR 6). Note composition rewritten to labelled lines, no pipes (CR 4). Regelspediteur replaces the Performance-Spediteur in the heading (CR 3, value only) |
 | 2026-08-18 | Bahn, Schiff and the Kategorie hints parked |
 | 2026-08-19 | `_hint` flattens the Hintergrund and the gate moves to `Len(_hint) = 0` (§6.1); `TL_txt_Kommentare` hint text. `_regel` makes the Regelspediteur optional (§6.3), superseding the CR 7b dropdown option. Regresspotential written back as a boolean (§7). Cleanup gated on success and `Navigate(varLastScreen)` added (§7). Hashtag line restructured by the customer-facing developer |
+| 2026-08-19 | `_regel` reduced to printing nothing when the Regelspediteur is blank (§6.3). `_sub` suppresses the Subkategorie hashtag when the record carries the `Keine Subkategorie vorhanden` choice value — customer feedback; the text is data, not an app string (§6.4) |
