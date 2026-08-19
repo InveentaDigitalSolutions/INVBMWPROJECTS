@@ -24,3 +24,9 @@ BMW licence.
    immediately before, or previously-fixed flows silently revert.
 4. **Status option values do not follow the label order.** `03` is `914890000`, `14` is
    `914890003`. Use the map in the reference; never infer.
+5. **Never import the full solution.** It exports at ~24 MB because it carries the canvas app, and
+   uploads of that size fail. Build a minimal solution with only the flows you changed.
+6. **`ResponseEnded` is not a failure signal.** `pac solution import` reports it on runs that
+   succeeded. Verify by re-export before retrying or re-patching.
+7. **Mail and Dataverse both run on connections owned by a BMW colleague.** Every import deactivates
+   the changed flows, and only someone who can use those connections can switch them back on.

@@ -4,9 +4,13 @@ BMW rail freight transport management: need → order → confirmation → deliv
 dunning (Mahnung) and cancellation (Storno). A Power Apps Canvas app, 26 cloud flows, a Dataverse
 model in a second environment, and two web masks for external partners.
 
-**As of** 2026-08-10 · **Sources** canvas snapshot `rts_flows_3104/rts-app/` and solution export
-`f8/vchild/` (2026-07-27), plus the later single-flow exports for the reminder (07-31) and bulk
-(07-29) flows · **Audience** whoever develops this next.
+**As of** 2026-08-19 · **Sources** solution export of `UC_otd_3104` taken 2026-08-19 after the
+Outlook migration, plus the canvas snapshot `rts_flows_3104/rts-app/` and the earlier export
+`f8/vchild/` (2026-07-27) for anything not re-verified since · **Audience** whoever develops this
+next.
+
+**The solution is `UC_otd_3104`, not `RTSFlowPackage`.** Earlier notes said otherwise; the export's
+`solution.xml` is the authority.
 
 Everything below was read from those files. Where a statement could not be verified against them
 it says so.
@@ -271,6 +275,83 @@ the whole List return nothing, breaking the flow entirely.
 
 ---
 
+### 5.1 The connector — Outlook, not Mail (2026-08-19)
+
+All mail used to go through the **Mail** connector (`shared_sendmail`, `SendEmailV3`). It now goes
+through **Office 365 Outlook** (`shared_office365`, `SendEmailV2`) on the connection reference
+`otd3104_sharedoffice365_36b25` — *3104_con_OutlookBMW*, a connection owned by a BMW employee.
+
+21 actions across 16 flows. The parameter mapping is one-to-one:
+
+```
+request/to      →  emailMessage/To          request/cc   →  emailMessage/Cc    (F02, F91)
+request/subject →  emailMessage/Subject     request/bcc  →  emailMessage/Bcc   (F14)
+request/text    →  emailMessage/Body        + emailMessage/Importance: "Normal"
+```
+
+`host.connectionName` becomes the `shared_office365` key, `operationId` becomes `SendEmailV2`,
+`apiId` becomes `/providers/Microsoft.PowerApps/apis/shared_office365`.
+
+**Nothing else had to change.** All 21 bodies were already complete HTML documents and Outlook V2
+treats `Body` as HTML, so the shell above survives untouched. No action had attachments, and — this
+was worth checking before starting — **no action's output was consumed downstream**, so replacing
+them could not break anything after them.
+
+**Every mail is sent from a shared mailbox:**
+
+```powerfx
+"emailMessage/From": "Rail_Vehicle_Distribution@bmwgroup.com"
+```
+
+`From` is a *request*, not a grant. Exchange rejects it unless the **connection owner holds Send As
+on that mailbox** — an admin grant, and the slowest dependency in the whole migration. A flow whose
+Send As is missing still reports Success at the action level in some cases; check a real inbox, not
+just the run history.
+
+### 5.2 Two faults the Mail connector was hiding
+
+Both were invisible for as long as mail went through `shared_sendmail`, which silently tolerates a
+malformed recipient list. Outlook validates recipients and rejects empty tokens, so both had to be
+fixed **in the same change** as the connector swap or seven flows would have started failing.
+
+**Literal trailing separators.** Six `to` expressions ended in `;;` or `; ; ` — leftovers from
+hardcoded addresses someone deleted. Removed.
+
+**Unfiltered blank addresses.** Fifteen `Select` actions projected `@item()?['rts_email']` straight
+from a `List rows` with no blank filter, so any shareholder row with an empty email produced an
+empty token mid-string. Each now has the filter F02 already used:
+
+```
+Filter_array_-_Contacts   type: Query
+  from:  <the Select's original from>
+  where: @not(equals(coalesce(item()?['rts_email'], ''), ''))
+```
+
+Note the search that found them. Looking for the `Join_-_Mail_to_create_mail_list` pattern surfaced
+five flows; keying on *any* `Select` projecting `rts_email` surfaced fifteen across eleven. The
+first search was the obvious one and it was wrong by a factor of three.
+
+### 5.3 Connection references after the migration
+
+The solution went from **14 connection references to 2**:
+
+| Logical name | Display | Used by |
+|---|---|---|
+| `otd3104_sharedoffice365_36b25` | 3104_con_OutlookBMW | 16 flows (all mail) |
+| `otd3104_sharedcommondataserviceforapps_22634` | 3104_con_DataverseBMW | 26 flows (all Dataverse) |
+
+The six `shared_sendmail` references died with the connector swap — including
+`p3_sharedsendmail_ad905`, which belonged to another project entirely and had five RTS flows
+sending through it. Four `otd3104_…commondataserviceforapps_…` references had never been used at
+all, and `otd3104_sharedoffice365_a2091` lost its only consumer when `SecurityRoleAssignment` left
+the solution.
+
+Dataverse moved off `new_sharedcommondataserviceforapps_8da54` — a default-publisher reference
+carrying all 26 flows — onto the BMW-owned one. That swap touches only each flow's
+`connectionReferences` block; no action, parameter or filter changes.
+
+---
+
 ## 6. Gotchas
 
 ### 6.1 The 512 KB compile limit
@@ -379,6 +460,58 @@ and renders nothing — set `IsSearchable: false`.
 
 ---
 
+### 6.11 `ResponseEnded` does not mean the import failed
+
+`pac solution import` drops with *"The response ended prematurely. (ResponseEnded)"* on most runs
+against this environment. It is **not** a reliable failure signal — during the Outlook migration the
+same error accompanied both a genuine failure and a completely successful import.
+
+Never retry blind and never assume. **Re-export and compare against what you built.** Retrying an
+import that actually succeeded is usually harmless; assuming one failed and re-patching from a
+stale base is not.
+
+### 6.12 The solution is too big to import — build a minimal one
+
+`UC_otd_3104` exports at ~24 MB because it carries the canvas app. Uploads of that size fail
+repeatedly. Every flow change should go in as a **minimal solution**: same `solution.xml` and
+`[Content_Types].xml`, a hand-built `customizations.xml` containing only the `<Workflow>` entries
+being changed and only the `<connectionreferences>` those flows use, and only the changed files
+under `Workflows/`. Around 80–100 KB, and it imports.
+
+This also narrows the blast radius of §6.5 — a component absent from the zip cannot be reverted by
+the upsert.
+
+### 6.13 `--activate-plugins` does not help if the connections are someone else's
+
+§6.7 says a changed flow comes back deactivated and that `--activate-plugins` reactivates it. That
+holds only when the importing account can use the flow's connections. Once the flows moved onto a
+connection owned by a BMW colleague, the flag stopped working entirely — 16 flows stayed in Draft
+and the designer showed:
+
+> *Some of the connections are not authorized yet.*
+
+`pac connection list` shows only connections **visible to the signed-in account**, which is how to
+confirm this: the owner's connection simply is not in the list.
+
+The fix is on the connection, not the flow — the owner shares it (**Can use**) with whoever
+maintains the flows, or the owner activates them. Sharing does not change the sending identity, so
+mail still goes out from the shared mailbox either way. Plan for a reactivation pass by that person
+after *every* import, and tell them before you start rather than after.
+
+### 6.14 Removing a connection reference from a solution is not deleting it
+
+The maker portal offers *Remove from this solution* and *Delete*. Remove is almost always what you
+want: the record survives, every flow keeps resolving it at runtime, and it is reversible. Delete
+destroys it environment-wide — which matters for a reference shared with another project.
+
+The trap is different. **Removing a reference that flows still bind creates an orphan**: the flows
+keep working here, because the record still exists in the environment, but the solution no longer
+carries the reference they name. Nothing looks wrong until the PROD import, which has nothing to
+bind them to. Repoint the flows first, then remove the reference.
+
+There is **no CLI verb for this** — `pac solution` has `add-solution-component` and no remove. It is
+a portal action, or `RemoveSolutionComponent` via the Web API.
+
 ## 7. Related deliverables
 
 | Thing | Where |
@@ -403,4 +536,16 @@ and renders nothing — set `IsSearchable: false`.
 | Deadline status | Uses `02 - Bedarf geprüft` though records are created at `00` |
 | F14 factory name match | Assumes `rts_calculateddeparturename` equals the FDP's `rts_dispatchpointname` or `rts_factorydipatchnameshort`. Confirmed working in test; `rts_calculateddeparturename` is a computed column whose formula is not in the solution export |
 | Polling flow | Kept as a fallback for the confirmation flow; retirement never decided |
-| Cross-project connection reference | The flows carry a connection reference belonging to another project; it travels on export |
+| ~~Cross-project connection reference~~ | **Resolved 2026-08-19.** `p3_sharedsendmail_ad905` died with the Outlook migration (§5.1) and was removed from the solution |
+| **25 flows awaiting reactivation** | The Dataverse reference swap deactivated them; only 2 of 27 are Activated. Needs the connection owner — see §6.13 |
+| **Mail never verified end to end** | No message has been observed arriving from `Rail_Vehicle_Distribution@bmwgroup.com`. Confirms two things at once: that `emailMessage/From` is the right parameter name (it could not be checked against the connector schema — `pac` exposes custom connectors only) and that Send As is granted |
+| **Dataverse connection's reach into the data environment** | `3104_con_DataverseBMW` is bound, but every flow targets `orgf7d737ab` through `rts_DataverseEnvironment`, not this environment. If that account holds no security role there, all 26 flows activate cleanly and then fail on every row operation |
+| Connection ownership | Both remaining references are personal connections of one BMW employee. If he changes role or consent lapses, mail and all Dataverse traffic stop together. A service account owning both is the durable form — cheapest to change now, at two references |
+
+---
+
+## 9. Change log
+
+| Date | Change |
+|---|---|
+| 2026-08-19 | **Mail migrated from the Mail connector to Office 365 Outlook** — 21 actions across 16 flows, sending from the shared mailbox `Rail_Vehicle_Distribution@bmwgroup.com` (§5.1). Two latent faults fixed in the same change: six literal trailing separators in recipient lists, and fifteen unfiltered `rts_email` projections (§5.2). Dataverse repointed from `new_…_8da54` to `3104_con_DataverseBMW` across 26 flows. Solution reduced from 14 connection references to 2 (§5.3). Four new gotchas recorded (§6.11–6.14) |
