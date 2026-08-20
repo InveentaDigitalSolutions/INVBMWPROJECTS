@@ -669,6 +669,65 @@ batch straddling that boundary cannot be repaired client-side** — the missing 
 fetched. And the nested `Filter` is O(n²); harmless at 20–100 rows per bucket, but it is the first
 thing to revisit if the page size grows.
 
+### 7.10 The checklist on OtD tickets — UI condition vs save condition
+
+**Symptom.** The checklist worked for ItO tickets and not for OtD. Reported as "not working"; what
+users actually saw was a single empty checklist line.
+
+**Cause.** The checklist gallery is shown for ItO *and* for OtD All —
+
+```powerfx
+ItO_Gallery_Checklist
+  Items:   =colItOChecklist
+  Visible: =varProjectPhase = "ItO" || varOtDTicketTyp = "OtD All"
+```
+
+— but the save logic in `SuccesScreen` → `SS_tmr_Fade_1` → **`OnTimerStart`** branched on the phase
+alone:
+
+```powerfx
+If(varProjectPhase = "ItO", <flow with colItOChecklist>, ForAll(ColSubTickets, Patch(Checkliste,…)))
+```
+
+For OtD All that took the else branch, so `colItOChecklist` — already filled by the user — was
+discarded and the rows were written from `ColSubTickets` instead. `ColSubTickets` is **not empty**
+in that state: the phase and OtD-type `OnChange` handlers seed it with one blank placeholder row.
+So the ticket got exactly one checklist entry with an empty `Akzeptanzkriterien`, and
+`TotalChecklist` was set to 1.
+
+**Fix (2026-08-20).** Both conditions in `OnTimerStart` now match the gallery's own condition:
+
+```powerfx
+varProjectPhase = "ItO" || varOtDTicketTyp = "OtD All"
+```
+
+— once on `TotalChecklist` in the `Patch(Tickets, …)` field list, once on the
+`// CHECKLIST / SUBTICKETS` branch. OtD Einzeltickets is unaffected and still writes from
+`ColSubTickets`, which is correct there: the gallery is hidden and that collection holds the real
+subtickets.
+
+**The general lesson.** When a control's `Visible` and the code that saves its data test different
+conditions, the gap is invisible in the UI and silent on save. Whenever you widen a `Visible` to a
+new case, grep for every branch that reads the same collection. Here the gallery had been extended
+to OtD All and the save path never followed.
+
+**Two related defects, still open.**
+
+`AnzahlSubTickets` is overloaded. For ItO it means *how many time periods the batch spans* and
+drives the T-range chip on the card (§7.1); for OtD it is set to `CountRows(ColSubTickets)` —
+subticket count, a different quantity. `BatchID` is always assigned and `Phase` is blank for OtD, so
+an OtD Einzeltickets ticket with three subtickets renders a chip reading **`T1-T3`** on a ticket
+that has no time periods at all. The chip is an ItO concept and should be gated on
+`ProjektPhase.Value = "ItO"` rather than made to carry two meanings.
+
+The same `Switch(n, 2, "T1-T2", 3, "T1-T3", 4, "T1-T4", "T1")` has no case for five or more and
+falls through to `"T1"`. Unreachable while only T1–T4 exist, but it fails quietly rather than
+loudly if that ever changes.
+
+`varOtDTicketTyp` is never reset when the project phase changes — the phase `OnChange` clears
+`ColSubTickets` but leaves it — so it holds a stale value after switching away from OtD. Harmless
+for the fix above, since ItO takes the same branch either way.
+
 ## 8. How to make common changes
 
 ### 8.1 Add a filter
@@ -953,3 +1012,4 @@ mapping more fields is not.** Reducing rows below 20/bucket was rejected — com
 | 2026-08-12 | **Scope clause reworked (§4.1)** — Bereich is now AND-ed onto ownership/Dienstleister in every mode instead of being an alternative to it; the empty-Bereiche case fails closed; the URI-saving guard that skipped the chain was removed after it silently dropped the boundary.  consolidated to one  lookup with a fallback, so role and Bereiche always come from the same row |
 | 2026-08-12 | Supplier search reverted to delegated `StartsWith` (§7.8) — the cache was truncating at 2.000 rows; business confirmed prefix search is sufficient. Board states: `varLoadError` captured in `OS_btn_LoadTickets`, surfaced in the header label in place of the count. Clear-all chip beside the filter chips; `OS_btn_FIlter_ClearAll_2` no longer races its own reload |
 | 2026-08-19 | Batch tickets ordered T1 → T4 within the Created-desc batch order (§7.9), on both the Kanban and list galleries. Customer confirmed the overall Created-desc ordering is correct and wanted only the intra-batch sequence changed |
+| 2026-08-20 | Checklist fixed for **OtD All** tickets (§7.10) — the gallery was visible for that case but the save branched on the phase alone, so the user's entries were discarded and one blank row written instead. Two related defects recorded but not fixed: the T-range chip misreading OtD tickets, and the stale `varOtDTicketTyp` |
