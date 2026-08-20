@@ -512,6 +512,70 @@ bind them to. Repoint the flows first, then remove the reference.
 There is **no CLI verb for this** — `pac solution` has `add-solution-component` and no remove. It is
 a portal action, or `RemoveSolutionComponent` via the Web API.
 
+### 6.15 The DST twin — a day lands in the wrong week, once a year
+
+**Symptom.** In the Planungsscreen, KW 43/2026 showed **two Mondays** and KW 44 had **none**.
+Reported as a data problem; the data was correct.
+
+**The calendar rows do not arrive at midnight.** `rts_calendar` stores each day at `00:00 UTC`, and
+the app renders local time — so a row reads `02:00` under CEST and `01:00` under CET:
+
+```
+19.10. 02:00  W2 D1      ← Monday, current week, correct
+24.10. 02:00  W2 D6
+26.10. 01:00  W2 D1      ← Monday, but bucketed into the CURRENT week
+27.10. 01:00  W3 D2
+```
+
+**Why exactly that day.** `btn_LoadWeek.OnSelect` buckets days by date arithmetic rather than by the
+calendar's own week number:
+
+```powerfx
+If(Date < DateAdd(varMonday, 7, TimeUnit.Days), 2, 3)
+```
+
+`varMonday` is `19.10 02:00`, so the boundary is `26.10 02:00`. The row for 26.10 arrives as
+`26.10 01:00` because the clocks went back on 25 October. `01:00 < 02:00` is true, so the Monday
+*after* the switch falls into the week *before* it. One hour decides it.
+
+It breaks only at the **autumn** switch. In spring the offset moves the other way — the boundary
+would be `01:00` and the day arrives at `02:00` — so the comparison lands correctly. Once a year,
+in the week containing the last Sunday of October, and invisible for the other fifty-one.
+
+**Fix (2026-08-20).** Normalise to midnight on both sides of every comparison, in
+`05_PlanningScreen` → `btn_LoadWeek` → `OnSelect`:
+
+```powerfx
+Set(varMondayD, Date(Year(varMonday), Month(varMonday), Day(varMonday)));
+Set(varPlanStart, DateAdd(varMondayD, -7, TimeUnit.Days));
+Set(varPlanEnd,   DateAdd(varMondayD, 12, TimeUnit.Days));
+```
+
+and in the `colWeekDates` bucket:
+
+```powerfx
+WeekNumber,
+    With(
+        { _d: Date(Year(ThisRecord.Date), Month(ThisRecord.Date), Day(ThisRecord.Date)) },
+        If(_d < varMondayD, 1, If(_d < DateAdd(varMondayD, 7, TimeUnit.Days), 2, 3))
+    )
+```
+
+`ThisRecord.Date` rather than bare `Date`, or the column name collides with the `Date()` function.
+
+**This is §6.2 in the canvas app.** That entry warns never to assume a UTC offset for day boundaries
+in a flow; this is the same fault one layer up. The general rule for this project: **whenever a
+Dataverse date is compared, bucketed or ranged, strip the time first.** The values do not arrive at
+midnight and the offset is not constant across the year.
+
+A useful diagnostic when a date lands in the wrong bucket — put this in a temporary label and read
+the times, not just the dates:
+
+```powerfx
+Concat(Filter(colWeekDates, Date >= Date(2026,10,19) && Date <= Date(2026,11,1)),
+       Text(Date, "dd.mm. hh:mm") & " W" & WeekNumber & " D" & DayIdx & "  ", "")
+```
+
 ## 7. Related deliverables
 
 | Thing | Where |
@@ -548,4 +612,5 @@ a portal action, or `RemoveSolutionComponent` via the Web API.
 
 | Date | Change |
 |---|---|
+| 2026-08-20 | Planungsscreen DST bug fixed (§6.15) — the Monday after the October switch was bucketed into the previous week, giving KW 43 two Mondays and KW 44 none. Cause was time-of-day drift in a date comparison, not the calendar data |
 | 2026-08-19 | **Mail migrated from the Mail connector to Office 365 Outlook** — 21 actions across 16 flows, sending from the shared mailbox `Rail_Vehicle_Distribution@bmwgroup.com` (§5.1). Two latent faults fixed in the same change: six literal trailing separators in recipient lists, and fifteen unfiltered `rts_email` projections (§5.2). Dataverse repointed from `new_…_8da54` to `3104_con_DataverseBMW` across 26 flows. Solution reduced from 14 connection references to 2 (§5.3). Four new gotchas recorded (§6.11–6.14) |
